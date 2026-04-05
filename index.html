@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evan — ArsenalRX</title>
+  <meta name="description" content="Evan (ArsenalRX) — Developer, Cybersecurity Enthusiast & Systems Engineer. Building interactive experiences with Python, Rust, React, and more." />
+  <meta property="og:title" content="Evan — ArsenalRX" />
+  <meta property="og:description" content="Developer portfolio — interactive web experiences, AI systems, and full-stack projects." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://arsenalrx.github.io" />
+  <meta name="theme-color" content="#ff2d2d" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔴</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="style.css" id="mainStyle" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Canvas Layers -->
+  <canvas id="cursorParticles"></canvas>
+  <canvas id="starfield"></canvas>
+  <canvas id="codeRain"></canvas>
+
+  <!-- Visual Overlays -->
+  <div class="warp-overlay" id="warpOverlay"></div>
+  <div class="arrival-pulse" id="arrivalPulse"></div>
+  <div class="glitch-overlay" id="glitchOverlay"></div>
+  <div class="scan-line" id="scanLine"></div>
+
+  <!-- Corner HUD Readouts -->
+  <div class="hud-readout hud-top-left" id="hudTL">
+    <div class="hud-line">SYS: <span id="hudSys">0xDEAD</span></div>
+    <div class="hud-line">ENC: <span>AES-256</span></div>
+  </div>
+  <div class="hud-readout hud-top-right" id="hudTR">
+    <div class="hud-line">SIGNAL: <span id="hudSignal">||||</span></div>
+    <div class="hud-line">STATUS: <span id="hudStatus">NOMINAL</span></div>
+  </div>
+  <div class="hud-readout hud-bottom-left" id="hudBL">
+    <div class="hud-line">SECTOR: <span id="hudSector">HOME</span></div>
+    <div class="hud-line">ADDR: <span id="hudAddr">0xFF01</span></div>
+    <div class="hud-line">SESSIONS: <span id="hudVisitors">---</span></div>
+  </div>
+
+  <!-- Rotating Reticle Cursor -->
+  <div class="reticle" id="reticle">
+    <svg viewBox="0 0 32 32" width="32" height="32">
+      <line x1="16" y1="0" x2="16" y2="12" stroke="rgba(255,45,45,0.7)" stroke-width="1.5"/>
+      <line x1="16" y1="20" x2="16" y2="32" stroke="rgba(255,45,45,0.7)" stroke-width="1.5"/>
+      <line x1="0" y1="16" x2="12" y2="16" stroke="rgba(255,45,45,0.7)" stroke-width="1.5"/>
+      <line x1="20" y1="16" x2="32" y2="16" stroke="rgba(255,45,45,0.7)" stroke-width="1.5"/>
+      <circle cx="16" cy="16" r="1.5" fill="rgba(255,45,45,0.9)"/>
+    </svg>
+  </div>
+
+  <!-- Nebula Clouds -->
+  <div class="nebula-layer">
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-3"></div>
+  </div>
+
+  <!-- Space Dust & Rocks -->
+  <div class="space-dust" id="spaceDust"></div>
+  <div class="space-rock" style="width:12px;height:10px;top:25%;left:8%;animation-duration:45s;opacity:0.25;"></div>
+  <div class="space-rock" style="width:8px;height:6px;top:55%;right:12%;animation-duration:52s;animation-delay:-10s;opacity:0.2;"></div>
+  <div class="space-rock" style="width:10px;height:8px;top:78%;left:25%;animation-duration:44s;animation-delay:-18s;opacity:0.2;"></div>
+
+  <!-- Back to Top Rocket -->
+  <button class="rocket-btn" id="rocketBtn" aria-label="Back to top">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/>
+      <path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/>
+      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 3 0 3 0"/>
+      <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-3 0-3"/>
+    </svg>
+    <div class="rocket-flame"><span></span><span></span><span></span></div>
+  </button>
+
+  <!-- Floating Nav -->
+  <nav class="nav" id="nav">
+    <div class="nav-logo">E<span class="accent">.</span></div>
+    <div class="nav-links">
+      <a href="#home" class="nav-link active" data-section="home">Home</a>
+      <a href="#about" class="nav-link" data-section="about">About</a>
+      <a href="#projects" class="nav-link" data-section="projects">Projects</a>
+      <a href="#skills" class="nav-link" data-section="skills">Skills</a>
+      <a href="#blog" class="nav-link" data-section="blog">Blog</a>
+      <a href="#terminal" class="nav-link" data-section="terminal">Terminal</a>
+      <a href="#contact" class="nav-link" data-section="contact">Contact</a>
+    </div>
+    <button class="dev-login-btn" id="devLoginBtn">Dev Login</button>
+    <button class="nav-music-btn" id="musicToggle" aria-label="Toggle music" title="Toggle music">
+      <svg class="music-icon-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+      <svg class="music-icon-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+    </button>
+    <div class="nav-hamburger" id="hamburger"><span></span><span></span><span></span></div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#home" class="mobile-link">Home</a>
+    <a href="#about" class="mobile-link">About</a>
+    <a href="#projects" class="mobile-link">Projects</a>
+    <a href="#skills" class="mobile-link">Skills</a>
+    <a href="#blog" class="mobile-link">Blog</a>
+    <a href="#terminal" class="mobile-link">Terminal</a>
+    <a href="#contact" class="mobile-link">Contact</a>
+    <button class="dev-login-btn mobile-dev-login" id="devLoginBtnMobile">Dev Login</button>
+  </div>
+
+  <!-- ========== HERO ========== -->
+  <section class="section hero" id="home">
+    <div class="hero-content">
+      <div class="hero-greeting reveal" id="heroGreeting">
+        <span class="greeting-line"></span>
+        <span class="greeting-text">Hello, I'm</span>
+      </div>
+      <div style="position:relative;display:inline-block;">
+        <div class="hero-radar">
+          <div class="radar-ring"></div>
+          <div class="radar-ring"></div>
+          <div class="radar-ring"></div>
+        </div>
+        <h1 class="hero-name reveal" id="heroName">Evan</h1>
+      </div>
+      <p class="hero-alias reveal">aka <span class="accent">ArsenalRX</span> — Developer &bull; Cybersecurity &bull; Systems Engineer</p>
+      <div class="hero-tagline reveal">
+        <span class="tagline-prefix">&gt;</span>
+        <span class="typewriter" id="typewriter"></span>
+        <span class="typewriter-cursor">|</span>
+      </div>
+      <div class="hero-cta reveal">
+        <a href="#projects" class="btn btn-primary glow-border">
+          <span>View My Work</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
+        </a>
+        <a href="https://github.com/ArsenalRX" target="_blank" class="btn btn-ghost">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+    <div class="scroll-indicator" id="scrollIndicator">
+      <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ========== NIGHTREIGN BANNER ========== -->
+  <section class="nightreign-banner reveal" id="nightreign">
+    <div class="nightreign-glow"></div>
+    <div class="nightreign-content">
+      <div class="nightreign-badge">IN DEVELOPMENT</div>
+      <h2 class="nightreign-title">Project <span class="nightreign-accent">NightReign</span></h2>
+      <p class="nightreign-subtitle">My biggest project to date.</p>
+      <div class="nightreign-line"></div>
+    </div>
+  </section>
+
+  <!-- ========== ABOUT ========== -->
+  <section class="section" id="about">
+    <div class="container">
+      <h2 class="section-title reveal" data-title="About Me"><span class="section-number">01.</span> <span class="title-text">About Me</span></h2>
+      <div class="about-grid">
+        <div class="about-text reveal">
+          <p>I'm <strong>Evan</strong>, also known as <span class="accent">ArsenalRX</span> online. Coding isn't my day job — it's what I do in my free time because I genuinely love building things. I work across the full stack on my own time — from interactive web experiences and desktop apps to low-level engineering and AI systems.</p>
+          <p>I'm driven by curiosity and a constant desire to learn. Whether it's training ML models, building native apps with <span class="accent">Tauri</span> and <span class="accent">Rust</span>, writing system-level code, or crafting pixel-perfect interfaces, I'm always pushing to level up.</p>
+          <p>Outside of work, I code in my free time — building side projects, experimenting with new tech, and sharpening my skills. When I'm not at the keyboard, you'll find me playing hockey, riding dirtbikes, or dreaming up the next thing to build.</p>
+          <div class="currently-learning">
+            <span class="learning-label">Currently exploring:</span>
+            <span class="learning-badge">Kernel Development</span>
+            <span class="learning-badge">ML Pipelines</span>
+            <span class="learning-badge">WebGPU</span>
+          </div>
+        </div>
+        <div class="about-card reveal">
+          <div class="card-glass glow-border">
+            <div class="card-orbit">
+              <div class="orbit-ring"></div>
+              <div class="orbit-ring"></div>
+              <div class="orbit-ring"></div>
+              <div class="orbit-dot" style="--orbit:1; --delay:0s"></div>
+              <div class="orbit-dot" style="--orbit:2; --delay:1s"></div>
+              <div class="orbit-dot" style="--orbit:3; --delay:2s"></div>
+              <div class="orbit-center"><span>E</span></div>
+            </div>
+            <div class="card-stats">
+              <div class="stat">
+                <span class="stat-value" id="statProjects">0</span>
+                <span class="stat-label">Projects</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">&#8734;</span>
+                <span class="stat-label">Curiosity</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value" id="statCommits">0</span>
+                <span class="stat-label">Commits</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PROJECTS ========== -->
+  <section class="section" id="projects">
+    <div class="container">
+      <h2 class="section-title reveal" data-title="Projects"><span class="section-number">02.</span> <span class="title-text">Projects</span></h2>
+
+      <h3 class="projects-category-title reveal">In Progress</h3>
+      <div class="projects-grid">
+        <div class="project-card reveal" data-lang="python">
+          <h3 class="project-name">Nexus <span class="project-version">v0.0.5 BETA</span></h3>
+          <div class="project-badges">
+            <span class="project-badge early-dev">Early Development</span>
+            <span class="project-badge private">Private</span>
+            <span class="project-badge ai-badge">AI</span>
+          </div>
+          <div class="project-tags">
+            <span class="tech-tag python">Python</span>
+            <span class="tech-tag ml">ML</span>
+          </div>
+          <p class="project-desc">A local abliterated 9B AI model with machine learning features built specifically for anti-cheat development and detection.</p>
+          <span class="project-click-hint">Click for details</span>
+        </div>
+
+        <div class="project-card reveal" data-lang="csharp">
+          <h3 class="project-name">Imperium <span class="project-version">v0.0.1</span></h3>
+          <div class="project-badges">
+            <span class="project-badge early-dev">Early Development</span>
+            <span class="project-badge private">Private</span>
+          </div>
+          <div class="project-tags">
+            <span class="tech-tag csharp">C#</span>
+            <span class="tech-tag cpp">C++</span>
+            <span class="tech-tag wpf">WPF</span>
+          </div>
+          <p class="project-desc">A Windows hardware identity spoofer with a modern WPF interface and kernel-mode driver. Randomizes hardware fingerprints to make your PC appear as a different machine.</p>
+          <span class="project-click-hint">Click for details</span>
+        </div>
+
+        <div class="project-card reveal" data-lang="js">
+          <h3 class="project-name">Amplifi <span class="project-version">v0.0.2</span></h3>
+          <div class="project-badges">
+            <span class="project-badge early-dev">Early Development</span>
+            <span class="project-badge private">Private</span>
+          </div>
+          <div class="project-tags">
+            <span class="tech-tag js">JavaScript</span>
+            <span class="tech-tag electron">Electron</span>
+          </div>
+          <p class="project-desc">A social media automation platform with modules for Instagram, YouTube, Twitter/X, TikTok, Reddit, Spotify, and more. Automate engagement across 15+ platforms.</p>
+          <span class="project-click-hint">Click for details</span>
+        </div>
+      </div>
+
+      <h3 class="projects-category-title reveal">Live — In Progress</h3>
+      <div class="projects-grid">
+        <a href="https://github.com/ArsenalRX/lightkeeper-releases/releases/tag/v0.8.9.4" target="_blank" class="project-card project-card-link reveal" data-lang="python">
+          <h3 class="project-name">Lightkeeper <span class="project-version">v0.8.9.4</span></h3>
+          <div class="project-badges">
+            <span class="project-badge live-pulse"><span class="pulse-dot"></span> Live</span>
+          </div>
+          <div class="project-tags">
+            <span class="tech-tag python">Python</span>
+            <span class="tech-tag electron">Electron</span>
+          </div>
+          <p class="project-desc">A USCG ATON workplan tool — downloads Light List data, provides interactive maps across all 9 districts, and generates optimized multi-day trip workplans with route planning.</p>
+          <span class="project-click-hint">Click for details</span>
+        </a>
+
+        <a href="https://github.com/nisakson2000/dnd-tracker/releases/tag/v0.8.6" target="_blank" class="project-card project-card-link reveal" data-lang="react">
+          <h3 class="project-name">The Codex <span class="project-version">v0.8.6</span></h3>
+          <div class="project-badges">
+            <span class="project-badge live-pulse"><span class="pulse-dot"></span> Live</span>
+            <span class="project-badge co-project">Co-Project with nisakson2000</span>
+          </div>
+          <div class="project-tags">
+            <span class="tech-tag react">React</span>
+            <span class="tech-tag tauri">Tauri 2</span>
+            <span class="tech-tag rust">Rust</span>
+          </div>
+          <p class="project-desc">A native D&D 5e character tracker with full ruleset support, 2,000+ article encyclopedia, real-time multiplayer sessions, and Player/DM modes. No account, no internet, no subscriptions.</p>
+          <span class="project-click-hint">Click for details</span>
+        </a>
+      </div>
+
+      <h3 class="projects-category-title reveal">Completed</h3>
+      <div class="projects-grid">
+        <a href="https://github.com/ArsenalRX/Ghosted" target="_blank" class="project-card project-card-link reveal" data-lang="rust">
+          <h3 class="project-name">Ghosted <span class="project-version">v0.5.0</span></h3>
+          <div class="project-badges">
+            <span class="project-badge out-of-date">Out of Date</span>
+            <span class="project-badge updating-pulse"><span class="update-dot"></span> Awaiting Update</span>
+          </div>
+          <div class="project-tags">
+            <span class="tech-tag rust">Rust</span>
+            <span class="tech-tag js">JavaScript</span>
+            <span class="tech-tag css-tag">CSS</span>
+            <span class="tech-tag html">HTML</span>
+          </div>
+          <p class="project-desc">An app to track your personal data across 100s of data broker sites and remove it. Take back control of your digital footprint.</p>
+          <span class="project-click-hint">Click for details</span>
+        </a>
+
+        <a href="https://github.com/ArsenalRX/voxmorph" target="_blank" class="project-card project-card-link reveal" data-lang="python">
+          <h3 class="project-name">VoxMorph <span class="project-version">v1.0.0</span></h3>
+          <div class="project-badges">
+            <span class="project-badge completed">Completed</span>
+            <span class="project-badge live-pulse"><span class="pulse-dot"></span> Live</span>
+            <span class="project-badge ai-badge">AI</span>
+          </div>
+          <div class="project-tags">
+            <span class="tech-tag python">Python</span>
+            <span class="tech-tag jupyter">Jupyter</span>
+          </div>
+          <p class="project-desc">Real-time AI voice translator that converts your speech into another language using a synthetic voice. Speak English and your teammates hear fluent German, Japanese, or any of 15+ supported languages — all in real-time.</p>
+          <span class="project-click-hint">Click for details</span>
+        </a>
+      </div>
+
+      <div class="projects-cta reveal">
+        <a href="https://github.com/ArsenalRX?tab=repositories" target="_blank" class="btn btn-ghost">
+          View All on GitHub
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SKILLS ========== -->
+  <section class="section" id="skills">
+    <div class="container">
+      <h2 class="section-title reveal" data-title="My Skills & Tools"><span class="section-number">03.</span> <span class="title-text">My Skills & Tools</span></h2>
+
+      <div class="skills-info-panel reveal" id="skillsCenter">
+        <div class="skills-info-icon" id="skillInfoIcon">?</div>
+        <div class="skills-info-text"><span id="hoveredSkill">Hover a skill to learn more</span></div>
+      </div>
+
+      <div class="skills-category reveal">
+        <h4 class="skills-category-label">Languages</h4>
+        <div class="skills-grid">
+          <div class="skill-card" data-skill="Python"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#3776AB" d="M11.914 0C5.82 0 6.2 2.656 6.2 2.656l.007 2.752h5.814v.826H3.9S0 5.789 0 11.969c0 6.18 3.403 5.96 3.403 5.96h2.03v-2.867s-.109-3.402 3.35-3.402h5.766s3.24.052 3.24-3.133V3.168S18.28 0 11.914 0zM8.708 1.85a1.06 1.06 0 110 2.12 1.06 1.06 0 010-2.12z"/><path fill="#FFD43B" d="M12.086 24c6.094 0 5.714-2.656 5.714-2.656l-.007-2.752h-5.814v-.826H20.1S24 18.211 24 12.031c0-6.18-3.403-5.96-3.403-5.96h-2.03v2.867s.109 3.402-3.35 3.402H9.451s-3.24-.052-3.24 3.133v5.359S5.72 24 12.086 24zm3.206-1.85a1.06 1.06 0 110-2.12 1.06 1.06 0 010 2.12z"/></svg></div><span class="skill-name">Python</span></div>
+          <div class="skill-card" data-skill="JavaScript"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><rect fill="#F7DF1E" width="24" height="24" rx="2"/><path d="M6.4 19.2l1.7-1c.3.6.6 1 1.3 1 .6 0 1-.3 1-1.3V11h2.1v6.9c0 2.2-1.3 3.1-3.1 3.1-1.7 0-2.6-.9-3-1.8zm7.1-.2l1.7-1c.4.7.9 1.2 1.8 1.2.8 0 1.2-.4 1.2-.9 0-.6-.5-1-1.4-1.3l-.5-.2c-1.4-.6-2.3-1.3-2.3-2.9 0-1.4 1.1-2.5 2.8-2.5 1.2 0 2.1.4 2.7 1.5l-1.5 1c-.3-.6-.7-.8-1.2-.8s-.8.3-.8.7c0 .5.3.7 1.1 1l.5.2c1.6.7 2.5 1.4 2.5 3 0 1.7-1.3 2.7-3.2 2.7-1.8 0-2.9-.8-3.4-1.9z"/></svg></div><span class="skill-name">JavaScript</span></div>
+          <div class="skill-card" data-skill="TypeScript"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><rect fill="#3178C6" width="24" height="24" rx="2"/><path fill="#fff" d="M5.1 14.1h2v5.3h1.8v-5.3h2v-1.5H5.1v1.5zm8.6-1.5l-1.1 0v6.8h1.6v-3.5l2.1 3.5h1.9l-2.4-3.6 2.2-3.2h-1.8l-1.9 3.1v-3.1h-.6z"/></svg></div><span class="skill-name">TypeScript</span></div>
+          <div class="skill-card" data-skill="C#"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#68217A" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm-.5 4l7.8 4.5v9L11.5 22l-7.8-4.5v-9L11.5 4zm-.3 3.3L6.5 10v4.7l4.7 2.7 4.7-2.7V10l-4.7-2.7zm3 5.2h-.9v.9H13v-.9h-.9v-.9h.9v-.9H13v-.9h.9v.9h.9v.9h-.9v.9h.3z"/></svg></div><span class="skill-name">C#</span></div>
+          <div class="skill-card" data-skill="C++"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#00599C" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm-.5 4l7.8 4.5v9L11.5 22l-7.8-4.5v-9L11.5 4zm3.6 8.5h1v1h-1v1h-1v-1h-1v-1h1v-1h1v1zm3 0h1v1h-1v1h-1v-1h-1v-1h1v-1h1v1z"/></svg></div><span class="skill-name">C++</span></div>
+          <div class="skill-card" data-skill="Rust"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#CE422B" d="M23.8 11.4l-1.2-.7.2-1.3c.1-.4-.2-.8-.5-1l-1.2-.5-.2-1.3c0-.4-.4-.7-.8-.7l-1.3.1-.6-1.1c-.2-.4-.6-.5-1-.4l-1.2.5-1-1c-.3-.3-.7-.3-1 0l-1 .9-1.2-.5c-.4-.2-.8 0-1 .4l-.6 1.1-1.3-.1c-.4 0-.7.3-.8.7L7 7.9l-1.2.5c-.4.2-.6.6-.5 1l.2 1.3-1.2.7c-.3.2-.5.6-.3 1l.5 1.2-.9 1c-.3.3-.3.7 0 1l.9 1-.5 1.2c-.2.4 0 .8.3 1l1.2.7-.2 1.3c-.1.4.2.8.5 1l1.2.5.2 1.3c0 .4.4.7.8.7l1.3-.1.6 1.1c.2.4.6.5 1 .4l1.2-.5 1 .9c.3.3.7.3 1 0l1-.9 1.2.5c.4.2.8 0 1-.4l.6-1.1 1.3.1c.4 0 .7-.3.8-.7l.2-1.3 1.2-.5c.4-.2.6-.6.5-1l-.2-1.3 1.2-.7c.3-.2.5-.6.3-1l-.5-1.2.9-1c.3-.3.3-.7 0-1l-.9-1 .5-1.2c.2-.4 0-.8-.3-1zM12 18a6 6 0 110-12 6 6 0 010 12z"/></svg></div><span class="skill-name">Rust</span></div>
+        </div>
+      </div>
+
+      <div class="skills-category reveal">
+        <h4 class="skills-category-label">Frameworks & Runtime</h4>
+        <div class="skills-grid">
+          <div class="skill-card" data-skill=".NET"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#512BD4" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm-1.5 17.1c-.1.1-.3.2-.5.2-.2 0-.4-.1-.5-.2-.1-.1-.2-.3-.2-.5s.1-.4.2-.5c.1-.1.3-.2.5-.2.2 0 .4.1.5.2.1.1.2.3.2.5s-.1.4-.2.5zM14 13c-.4.3-.7.7-.9 1.1-.2.4-.3.9-.3 1.4h-1.5c0-.7.1-1.3.4-1.9.3-.5.7-1 1.2-1.4.5-.4.8-.7 1-1 .2-.3.3-.6.3-1 0-.5-.2-.9-.5-1.2-.3-.3-.8-.5-1.4-.5-.5 0-1 .2-1.3.5-.3.3-.5.7-.6 1.2H8.9c.1-.8.4-1.5 1-2 .6-.5 1.4-.8 2.3-.8 1 0 1.8.3 2.3.8.6.5.8 1.2.8 2 0 .6-.1 1.1-.4 1.5-.3.4-.6.8-1 1.2z"/></svg></div><span class="skill-name">.NET</span></div>
+          <div class="skill-card" data-skill="Node.js"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#339933" d="M12 1.85c-.27 0-.55.07-.78.2l-7.44 4.3c-.48.28-.78.8-.78 1.36v8.58c0 .56.3 1.08.78 1.36l1.95 1.12c.95.46 1.27.45 1.7.45 1.4 0 2.2-.85 2.2-2.33V8.44c0-.12-.1-.22-.22-.22H8.5c-.13 0-.23.1-.23.22v8.47c0 .66-.68 1.31-1.77.76L4.45 16.5a.26.26 0 01-.12-.21V7.71c0-.09.05-.17.12-.21l7.44-4.29c.07-.04.16-.04.22 0l7.44 4.3c.07.03.12.11.12.2v8.58c0 .08-.05.17-.12.21l-7.44 4.29c-.06.04-.15.04-.22 0l-1.88-1.11c-.06-.03-.12-.04-.18-.02-.52.24-.62.27-1.1.4-.12.04-.3.1.07.28l2.45 1.45c.24.14.5.21.78.21.27 0 .54-.07.78-.2l7.44-4.3c.48-.28.78-.8.78-1.36V7.71c0-.56-.3-1.08-.78-1.36l-7.44-4.3c-.24-.13-.5-.2-.78-.2z"/></svg></div><span class="skill-name">Node.js</span></div>
+          <div class="skill-card" data-skill="React"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><circle cx="12" cy="12" r="2.2" fill="#61DAFB"/><g stroke="#61DAFB" fill="none" stroke-width="1"><ellipse rx="11" ry="4.2" cx="12" cy="12"/><ellipse rx="11" ry="4.2" cx="12" cy="12" transform="rotate(60 12 12)"/><ellipse rx="11" ry="4.2" cx="12" cy="12" transform="rotate(120 12 12)"/></g></svg></div><span class="skill-name">React</span></div>
+        </div>
+      </div>
+
+      <div class="skills-category reveal">
+        <h4 class="skills-category-label">Tools & Platforms</h4>
+        <div class="skills-grid">
+          <div class="skill-card" data-skill="Docker"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#2496ED" d="M13.98 11.08h2.12a.19.19 0 00.19-.19V9.01a.19.19 0 00-.19-.19h-2.12a.19.19 0 00-.19.19v1.88c0 .1.09.19.19.19zm-2.95-5.43h2.12a.19.19 0 00.19-.19V3.58a.19.19 0 00-.19-.19h-2.12a.19.19 0 00-.19.19v1.88c0 .11.09.19.19.19zm0 2.71h2.12a.19.19 0 00.19-.19V6.29a.19.19 0 00-.19-.19h-2.12a.19.19 0 00-.19.19v1.88c0 .11.09.19.19.19zm-2.93 0h2.12a.19.19 0 00.19-.19V6.29a.19.19 0 00-.19-.19H8.1a.19.19 0 00-.19.19v1.88c0 .11.08.19.19.19zm-2.96 0h2.12a.19.19 0 00.19-.19V6.29a.19.19 0 00-.19-.19H5.14a.19.19 0 00-.19.19v1.88c0 .11.09.19.19.19zM11.03 11.08h2.12a.19.19 0 00.19-.19V9.01a.19.19 0 00-.19-.19h-2.12a.19.19 0 00-.19.19v1.88c0 .1.09.19.19.19zm-2.93 0h2.12a.19.19 0 00.19-.19V9.01a.19.19 0 00-.19-.19H8.1a.19.19 0 00-.19.19v1.88c0 .1.08.19.19.19zm-2.96 0h2.12a.19.19 0 00.19-.19V9.01a.19.19 0 00-.19-.19H5.14a.19.19 0 00-.19.19v1.88c0 .1.09.19.19.19zm15.57.92c-.56-.37-1.85-.5-2.84-.32-.13-.95-.66-1.78-1.3-2.46l-.44-.37-.36.45c-.46.57-.72 1.36-.65 2.12.04.37.16.77.38 1.07-.55.31-1.63.47-2.43.45H.88l-.05.43c-.15 1.3.09 2.68.75 3.83.83 1.43 2.27 2.25 4.19 2.43.51.05 1.02.07 1.53.07 2.85 0 5.01-.94 6.63-2.74 1.35-1.5 2.03-3.57 2.56-5.96h.22c1.37 0 2.21-.55 2.68-1.01.31-.29.55-.65.75-1.01l.1-.24-.36-.15z"/></svg></div><span class="skill-name">Docker</span></div>
+          <div class="skill-card" data-skill="Git & GitHub"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#F05032" d="M23.5 11.3L12.7.5c-.7-.7-1.7-.7-2.4 0l-2.2 2.2 2.8 2.8c.6-.2 1.4-.1 1.9.5.5.5.7 1.2.5 1.9l2.7 2.7c.6-.2 1.4-.1 1.9.5.7.7.7 1.9 0 2.6-.7.7-1.9.7-2.6 0-.6-.6-.7-1.4-.4-2.1l-2.5-2.5v6.6c.2.1.3.2.5.4.7.7.7 1.9 0 2.6-.7.7-1.9.7-2.6 0-.7-.7-.7-1.9 0-2.6.2-.2.4-.3.6-.4V9.8c-.2-.1-.4-.3-.6-.4-.6-.6-.7-1.4-.4-2.1L7.5 4.5.5 11.3c-.7.7-.7 1.7 0 2.4l10.8 10.8c.7.7 1.7.7 2.4 0l10.8-10.8c.7-.7.7-1.7 0-2.4z"/></svg></div><span class="skill-name">Git & GitHub</span></div>
+          <div class="skill-card" data-skill="Linux"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#FCC624" d="M12.5 2C10 2 8.3 4.5 8.3 7.8c0 1.2.3 2.5.7 3.5-.3.3-.8.8-1.2 1.5-.7 1.1-.9 2.3-.3 3.2.3.5.8.8 1.2.8.1.8.6 1.5 1.3 2 .4.3.8.5 1.2.6l-.3 1.6c-.1.3.1.6.3.8l1.3.7c.2.1.5.1.7 0l1.3-.7c.3-.1.4-.4.3-.8l-.3-1.6c.4-.1.8-.3 1.2-.6.7-.5 1.2-1.2 1.3-2 .5-.1.9-.3 1.2-.8.6-.9.4-2.1-.3-3.2-.4-.7-.9-1.2-1.2-1.5.5-1 .7-2.3.7-3.5C16.7 4.5 15 2 12.5 2z"/></svg></div><span class="skill-name">Linux</span></div>
+          <div class="skill-card" data-skill="AI & ML"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#FF6F00" d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1.27c.34-.6.99-1 1.73-1a2 2 0 110 4c-.74 0-1.39-.4-1.73-1H20a7 7 0 01-7 7v1.27c.6.34 1 .99 1 1.73a2 2 0 11-4 0c0-.74.4-1.39 1-1.73V17a7 7 0 01-7-7H2.73c-.34.6-.99 1-1.73 1a2 2 0 110-4c.74 0 1.39.4 1.73 1H4a7 7 0 017-7V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2zm0 7a3 3 0 100 6 3 3 0 000-6z"/></svg></div><span class="skill-name">AI & ML</span></div>
+          <div class="skill-card" data-skill="Windows"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#0078D4" d="M0 3.5l9.9-1.4v9.5H0V3.5zm11.1-1.5L24 0v11.6H11.1V2zm0 10.9H24V24l-12.9-1.8V12.9zM0 12.9h9.9v9.3L0 20.9v-8z"/></svg></div><span class="skill-name">Windows</span></div>
+          <div class="skill-card" data-skill="Fedora"><div class="skill-card-glow"></div><div class="skill-icon"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#51A2DA" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c3.87 0 7 3.13 7 7v1h-5v-1c0-1.1-.9-2-2-2s-2 .9-2 2v4c0 1.1.9 2 2 2s2-.9 2-2h5c0 3.87-3.13 7-7 7s-7-3.13-7-7 3.13-7 7-7z"/></svg></div><span class="skill-name">Fedora</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== BLOG ========== -->
+  <section class="section" id="blog">
+    <div class="container">
+      <h2 class="section-title reveal" data-title="Write-ups"><span class="section-number">04.</span> <span class="title-text">Write-ups</span></h2>
+      <div class="blog-grid" id="blogGrid"></div>
+    </div>
+  </section>
+
+  <!-- ========== TERMINAL ========== -->
+  <section class="section" id="terminal">
+    <div class="container">
+      <h2 class="section-title reveal" data-title="Interactive Terminal"><span class="section-number">05.</span> <span class="title-text">Interactive Terminal</span></h2>
+      <div class="terminal reveal">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <span class="terminal-title">evan@arsenalrx ~ </span>
+        </div>
+        <div class="terminal-body" id="terminalBody">
+          <div class="terminal-line">
+            <span class="terminal-prompt">visitor@arsenalrx:~$</span>
+            <span class="terminal-output"> Welcome! Type <span class="cmd-highlight">help</span> to see available commands. Type <span class="cmd-highlight" style="color:var(--accent2)">secret</span> if you dare.</span>
+          </div>
+        </div>
+        <div class="terminal-input-line">
+          <span class="terminal-prompt">visitor@arsenalrx:~$</span>
+          <input type="text" class="terminal-input" id="terminalInput" placeholder="Type a command..." autocomplete="off" spellcheck="false" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CONTACT ========== -->
+  <section class="section" id="contact">
+    <div class="container">
+      <h2 class="section-title reveal" data-title="Get In Touch"><span class="section-number">06.</span> <span class="title-text">Get In Touch</span></h2>
+      <div class="contact-grid reveal">
+        <div class="contact-form-card card-glass">
+          <p class="contact-text">Got a question, project idea, or just want to say hi? Send a transmission.</p>
+          <form class="contact-form" id="contactForm" action="https://formspree.io/f/mbdppgnv" method="POST">
+            <div class="form-group">
+              <label for="contactName">Name</label>
+              <input type="text" id="contactName" name="name" placeholder="Your callsign" required />
+            </div>
+            <div class="form-group">
+              <label for="contactEmail">Email</label>
+              <input type="email" id="contactEmail" name="email" placeholder="your@email.com" required />
+            </div>
+            <div class="form-group">
+              <label for="contactMessage">Message</label>
+              <textarea id="contactMessage" name="message" rows="4" placeholder="Your message..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary glow-border contact-submit">
+              <span>Send Transmission</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </form>
+          <div class="transmission-sent" id="transmissionSent">
+            <div class="transmission-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              <div class="transmission-rings">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+            <p>Transmission sent successfully!</p>
+          </div>
+        </div>
+        <div class="contact-info reveal">
+          <div class="contact-links">
+            <a href="mailto:faterivalz@gmail.com" class="contact-link-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span>faterivalz@gmail.com</span>
+            </a>
+            <a href="https://github.com/ArsenalRX" target="_blank" class="contact-link-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span>github.com/ArsenalRX</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-nav">
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#blog">Blog</a>
+      <a href="#terminal">Terminal</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="footer-social">
+      <a href="https://github.com/ArsenalRX" target="_blank" aria-label="GitHub">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      </a>
+      <a href="mailto:faterivalz@gmail.com" aria-label="Email">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </a>
+    </div>
+    <div class="footer-tagline">Built with vanilla HTML, CSS & JS</div>
+    <div class="footer-content" id="footerContent">
+      <span>Built by Evan</span>
+      <span class="footer-dot">&middot;</span>
+      <span class="accent">ArsenalRX</span>
+      <span class="footer-dot">&middot;</span>
+      <span id="currentYear"></span>
+    </div>
+    <div class="footer-secret" id="footerSecret">// you found the hidden message. nice.</div>
+    <div class="footer-click-hint" id="footerClickHint">// click me</div>
+  </footer>
+
+  <!-- Project detail modal -->
+  <div class="project-modal-overlay" id="projectModal">
+    <div class="project-modal">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <div class="modal-badges" id="modalBadges"></div>
+      <div class="modal-tags" id="modalTags"></div>
+      <p class="modal-desc" id="modalDesc"></p>
+      <div class="modal-details" id="modalDetails"></div>
+      <div class="modal-link-row" id="modalLinkRow"></div>
+    </div>
+  </div>
+
+  <!-- Ghost cursor -->
+  <div class="ghost-reticle" id="ghostReticle">
+    <svg viewBox="0 0 40 40" width="40" height="40">
+      <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(100,180,255,0.3)" stroke-width="1" stroke-dasharray="4 6"/>
+      <circle cx="20" cy="20" r="2" fill="rgba(100,180,255,0.4)"/>
+    </svg>
+  </div>
+
+  <!-- Packet sniffer panel -->
+  <div class="packet-sniffer" id="packetSniffer">
+    <div class="packet-sniffer-header" id="packetSnifferHeader">
+      <span class="packet-sniffer-title">NET MONITOR</span>
+      <span class="packet-sniffer-toggle" id="packetSnifferToggle">&#9660;</span>
+    </div>
+    <div class="packet-sniffer-body" id="packetSnifferBody"></div>
+  </div>
+
+  <!-- Orbital command map -->
+  <canvas id="orbitalMap"></canvas>
+
+  <!-- Clipboard toast -->
+  <div class="clipboard-toast" id="clipboardToast">Data exfiltration detected.</div>
+
+  <!-- ========== THE MAGIC SCRIPT LOADER ========== -->
+  <script>
+    // Auto cache-bust: forces fresh CSS + JS on every visit
+    var t = Date.now();
+    document.getElementById('mainStyle').href = 'style.css?t=' + t;
+    
+    var jsFiles = [
+      'js/constants.js',
+      'js/starfield.js',
+      'js/particles.js',
+      'js/effects.js',
+      'js/hud.js',
+      'js/typewriter.js',
+      'js/nav.js',
+      'js/music.js',
+      'js/terminal.js',
+      'js/projects.js',
+      'js/skills.js',
+      'js/analytics.js', // This is where your tracking code lives!
+      'js/blog.js',
+      'js/contact.js',
+      'js/features.js',
+      'js/easter-eggs.js',
+      'js/init.js'
+    ];
+    
+    // Loop to load each file
+    jsFiles.forEach(function(file) {
+      if (file) {
+        var s = document.createElement('script');
+        // Add cache-busting (the `?t=`) to prevent old data from showing up
+        s.src = file + '?t=' + t;
+        s.async = true; // Preserve execution order
+        document.body.appendChild(s);
+      }
+    });
+  </script>
+</body>
+</html>
