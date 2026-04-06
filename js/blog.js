@@ -74,96 +74,20 @@
     },
   ];
 
-  // ========== DEV LOGIN ==========
-  var DEV_PASS_HASH = 'e52522a505f68250e81747aa5386c5c60196c1680f1c89762ab1ab0fbaae39b8';
-  var devLoggedIn = false;
-
-  function sha256(str) {
-    var buf = new TextEncoder().encode(str);
-    return crypto.subtle.digest('SHA-256', buf).then(function(hash) {
-      return Array.from(new Uint8Array(hash)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
-    });
-  }
-
-  function getCustomPosts() {
-    try { return JSON.parse(localStorage.getItem('blogCustomPosts') || '[]'); } catch (e) { return []; }
-  }
-
-  function saveCustomPosts(posts) {
-    try { localStorage.setItem('blogCustomPosts', JSON.stringify(posts)); } catch (e) {}
-  }
-
-  // Built-in post overrides (edits stored in localStorage)
-  function getBuiltinOverrides() {
-    try { return JSON.parse(localStorage.getItem('blogBuiltinOverrides') || '{}'); } catch (e) { return {}; }
-  }
-
-  function saveBuiltinOverrides(overrides) {
-    try { localStorage.setItem('blogBuiltinOverrides', JSON.stringify(overrides)); } catch (e) {}
-  }
-
-  // Deleted built-in post IDs
-  function getDeletedBuiltins() {
-    try { return JSON.parse(localStorage.getItem('blogDeletedBuiltins') || '[]'); } catch (e) { return []; }
-  }
-
-  function saveDeletedBuiltins(ids) {
-    try { localStorage.setItem('blogDeletedBuiltins', JSON.stringify(ids)); } catch (e) {}
-  }
-
-  function getAllPosts() {
-    var deleted = getDeletedBuiltins();
-    var overrides = getBuiltinOverrides();
-
-    // Apply overrides to built-in posts, skip deleted ones
-    var builtins = blogPosts.filter(function(p) {
-      return deleted.indexOf(p.id) === -1;
-    }).map(function(p) {
-      var o = overrides[p.id];
-      if (o) {
-        return { id: p.id, title: o.title || p.title, date: o.date || p.date, tags: o.tags || p.tags, excerpt: o.excerpt || p.excerpt, content: o.content || p.content, builtin: true };
-      }
-      return { id: p.id, title: p.title, date: p.date, tags: p.tags, excerpt: p.excerpt, content: p.content, builtin: true };
-    });
-
-    var custom = getCustomPosts();
-    var all = builtins.concat(custom);
-    all.sort(function(a, b) { return b.date.localeCompare(a.date); });
-    return all;
-  }
-
   // ========== RENDER BLOG CARDS ==========
   var blogGrid = document.getElementById('blogGrid');
   if (!blogGrid) return;
 
   function renderAllCards() {
     blogGrid.innerHTML = '';
-    var allPosts = getAllPosts();
 
-    // Add "New Post" button if logged in
-    if (devLoggedIn) {
-      var newBtn = document.createElement('div');
-      newBtn.className = 'blog-card blog-card-new visible';
-      newBtn.innerHTML = '<div class="blog-new-icon">+</div><span class="blog-new-label">New Write-up</span>';
-      newBtn.addEventListener('click', function() { openEditor(); });
-      blogGrid.appendChild(newBtn);
-    }
-
-    allPosts.forEach(function(post) {
+    blogPosts.forEach(function(post) {
       var card = document.createElement('div');
       card.className = 'blog-card reveal';
 
       var tagsHTML = post.tags.map(function(t) {
         return '<span class="blog-tag">' + t + '</span>';
       }).join('');
-
-      var editBtns = '';
-      if (devLoggedIn) {
-        editBtns = '<div class="blog-card-actions">' +
-          '<button class="blog-action-btn blog-edit-btn" data-id="' + post.id + '">Edit</button>' +
-          '<button class="blog-action-btn blog-delete-btn" data-id="' + post.id + '">Delete</button>' +
-          '</div>';
-      }
 
       card.innerHTML =
         '<div class="blog-card-header">' +
@@ -172,30 +96,11 @@
         '</div>' +
         '<h3 class="blog-title">' + post.title + '</h3>' +
         '<p class="blog-excerpt">' + post.excerpt + '</p>' +
-        '<span class="blog-read-more">Read more <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>' +
-        editBtns;
+        '<span class="blog-read-more">Read more <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>';
 
-      card.addEventListener('click', function(e) {
-        if (e.target.closest('.blog-action-btn')) return;
+      card.addEventListener('click', function() {
         openBlogModal(post);
       });
-
-      // Edit/delete handlers
-      if (devLoggedIn) {
-        card.querySelector('.blog-edit-btn').addEventListener('click', function() { openEditor(post); });
-        card.querySelector('.blog-delete-btn').addEventListener('click', function() {
-          if (!confirm('Delete "' + post.title + '"?')) return;
-          if (post.builtin) {
-            var deleted = getDeletedBuiltins();
-            if (deleted.indexOf(post.id) === -1) deleted.push(post.id);
-            saveDeletedBuiltins(deleted);
-          } else {
-            var posts = getCustomPosts().filter(function(p) { return p.id !== post.id; });
-            saveCustomPosts(posts);
-          }
-          renderAllCards();
-        });
-      }
 
       blogGrid.appendChild(card);
       if (ARX.revealObserver) ARX.revealObserver.observe(card);
@@ -241,236 +146,4 @@
     document.getElementById('blogModalBody').innerHTML = post.content;
     blogModal.classList.add('open');
   }
-
-  // ========== BLOG EDITOR MODAL ==========
-  var editorModal = document.createElement('div');
-  editorModal.className = 'blog-modal-overlay';
-  editorModal.id = 'blogEditorModal';
-  editorModal.innerHTML =
-    '<div class="blog-modal blog-editor">' +
-      '<button class="modal-close" id="blogEditorClose">&times;</button>' +
-      '<h2 class="blog-modal-title">Write-up Editor</h2>' +
-      '<div class="editor-form">' +
-        '<div class="editor-row">' +
-          '<label>Title</label>' +
-          '<input type="text" id="editorTitle" placeholder="Post title" />' +
-        '</div>' +
-        '<div class="editor-row">' +
-          '<label>Date</label>' +
-          '<input type="date" id="editorDate" />' +
-        '</div>' +
-        '<div class="editor-row">' +
-          '<label>Tags <span style="color:var(--text-dim);font-size:0.7rem">(comma separated)</span></label>' +
-          '<input type="text" id="editorTags" placeholder="Python, AI, Web Dev" />' +
-        '</div>' +
-        '<div class="editor-row">' +
-          '<label>Excerpt</label>' +
-          '<textarea id="editorExcerpt" rows="2" placeholder="Short summary shown on the card"></textarea>' +
-        '</div>' +
-        '<div class="editor-row">' +
-          '<label>Content <span style="color:var(--text-dim);font-size:0.7rem">(HTML supported: &lt;h4&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;code&gt;)</span></label>' +
-          '<textarea id="editorContent" rows="12" placeholder="<p>Your write-up content here...</p>"></textarea>' +
-        '</div>' +
-        '<div class="editor-actions">' +
-          '<button class="btn btn-primary glow-border" id="editorSave">Publish</button>' +
-          '<button class="btn btn-ghost" id="editorCancel">Cancel</button>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  document.body.appendChild(editorModal);
-
-  var _editingId = null;
-  var _editingBuiltin = false;
-
-  document.getElementById('blogEditorClose').addEventListener('click', function() { editorModal.classList.remove('open'); });
-  editorModal.addEventListener('click', function(e) { if (e.target === editorModal) editorModal.classList.remove('open'); });
-  document.getElementById('editorCancel').addEventListener('click', function() { editorModal.classList.remove('open'); });
-
-  document.getElementById('editorSave').addEventListener('click', function() {
-    var title = document.getElementById('editorTitle').value.trim();
-    var date = document.getElementById('editorDate').value;
-    var tags = document.getElementById('editorTags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
-    var excerpt = document.getElementById('editorExcerpt').value.trim();
-    var content = document.getElementById('editorContent').value.trim();
-
-    if (!title || !date || !content) { alert('Title, date, and content are required.'); return; }
-
-    if (_editingBuiltin && _editingId) {
-      // Save override for built-in post
-      var overrides = getBuiltinOverrides();
-      overrides[_editingId] = { title: title, date: date, tags: tags, excerpt: excerpt, content: content };
-      saveBuiltinOverrides(overrides);
-    } else if (_editingId) {
-      // Edit existing custom post
-      var posts = getCustomPosts();
-      posts = posts.map(function(p) {
-        if (p.id === _editingId) { p.title = title; p.date = date; p.tags = tags; p.excerpt = excerpt; p.content = content; }
-        return p;
-      });
-      saveCustomPosts(posts);
-    } else {
-      // New custom post
-      var posts = getCustomPosts();
-      posts.push({ id: Date.now().toString(), title: title, date: date, tags: tags, excerpt: excerpt, content: content, custom: true });
-      saveCustomPosts(posts);
-    }
-    _editingId = null;
-    _editingBuiltin = false;
-    editorModal.classList.remove('open');
-    renderAllCards();
-  });
-
-  function openEditor(post) {
-    if (post) {
-      _editingId = post.id;
-      _editingBuiltin = !!post.builtin;
-      document.getElementById('editorTitle').value = post.title;
-      document.getElementById('editorDate').value = post.date;
-      document.getElementById('editorTags').value = post.tags.join(', ');
-      document.getElementById('editorExcerpt').value = post.excerpt;
-      document.getElementById('editorContent').value = post.content;
-    } else {
-      _editingId = null;
-      _editingBuiltin = false;
-      document.getElementById('editorTitle').value = '';
-      document.getElementById('editorDate').value = new Date().toISOString().split('T')[0];
-      document.getElementById('editorTags').value = '';
-      document.getElementById('editorExcerpt').value = '';
-      document.getElementById('editorContent').value = '';
-    }
-    editorModal.classList.add('open');
-  }
-
-  // ========== DEV LOGIN MODAL ==========
-  var loginModal = document.createElement('div');
-  loginModal.className = 'dev-login-overlay';
-  loginModal.id = 'devLoginModal';
-  loginModal.innerHTML =
-    '<div class="dev-login-modal">' +
-      '<div class="dev-login-header">' +
-        '<span class="dev-login-icon">&gt;_</span>' +
-        '<span class="dev-login-label">AUTHENTICATION REQUIRED</span>' +
-      '</div>' +
-      '<div class="dev-login-body">' +
-        '<label class="dev-login-field-label">Enter access code</label>' +
-        '<input type="password" id="devPassInput" class="dev-login-input" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;" autocomplete="off" spellcheck="false" />' +
-        '<div class="dev-login-error" id="devLoginError">Access denied.</div>' +
-        '<div class="dev-login-actions">' +
-          '<button class="btn btn-primary glow-border dev-login-submit" id="devLoginSubmit">Authenticate</button>' +
-          '<button class="btn btn-ghost dev-login-cancel" id="devLoginCancel">Cancel</button>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  document.body.appendChild(loginModal);
-
-  var devPassInput = document.getElementById('devPassInput');
-  var devLoginError = document.getElementById('devLoginError');
-
-  var failedAttempts = 0;
-
-  function closeLoginModal() {
-    loginModal.classList.remove('open');
-    devPassInput.value = '';
-    devLoginError.classList.remove('visible');
-  }
-
-  function attemptLogin() {
-    var pass = devPassInput.value;
-    if (!pass) return;
-    sha256(pass).then(function(hash) {
-      if (hash === DEV_PASS_HASH) {
-        failedAttempts = 0;
-        devLoggedIn = true;
-        sessionStorage.setItem('devAuth', '1');
-        devBtn.textContent = 'Dev Mode';
-        devBtn.classList.add('active');
-        renderAllCards();
-        closeLoginModal();
-      } else {
-        failedAttempts++;
-        devLoginError.classList.add('visible');
-        devPassInput.value = '';
-        devPassInput.focus();
-        setTimeout(function() { devLoginError.classList.remove('visible'); }, 2000);
-      }
-    });
-  }
-
-  // ========== (hack screen removed) ==========
-
-  document.getElementById('devLoginSubmit').addEventListener('click', function() { attemptLogin(); });
-  document.getElementById('devLoginCancel').addEventListener('click', closeLoginModal);
-  loginModal.addEventListener('click', function(e) { if (e.target === loginModal) closeLoginModal(); });
-  devPassInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') attemptLogin(); if (e.key === 'Escape') closeLoginModal(); });
-
-  // ========== DEV LOGIN BUTTON ==========
-  var devBtn = document.getElementById('devLoginBtn');
-  var devBtnMobile = document.getElementById('devLoginBtnMobile');
-  var analyticsBtn = null;
-
-  function setDevState(loggedIn) {
-    devLoggedIn = loggedIn;
-    var btns = [devBtn, devBtnMobile].filter(Boolean);
-    btns.forEach(function(b) {
-      b.textContent = loggedIn ? 'Dev Mode' : 'Dev Login';
-      if (loggedIn) b.classList.add('active'); else b.classList.remove('active');
-    });
-    renderAllCards();
-    // Show/hide analytics button
-    if (loggedIn) {
-      if (!analyticsBtn && ARX.showAnalyticsPanel) {
-        analyticsBtn = document.createElement('button');
-        analyticsBtn.className = 'dev-analytics-btn';
-        analyticsBtn.textContent = 'Analytics';
-        analyticsBtn.addEventListener('click', function() { ARX.showAnalyticsPanel(); });
-        if (devBtn && devBtn.parentNode) devBtn.parentNode.insertBefore(analyticsBtn, devBtn.nextSibling);
-      }
-      if (analyticsBtn) analyticsBtn.style.display = '';
-    } else {
-      if (analyticsBtn) analyticsBtn.style.display = 'none';
-      var ap = document.getElementById('analyticsPanel');
-      if (ap) { ap.classList.remove('open'); setTimeout(function() { ap.remove(); }, 300); }
-    }
-  }
-
-  function handleDevClick() {
-    if (devLoggedIn) {
-      sessionStorage.removeItem('devAuth');
-      setDevState(false);
-      return;
-    }
-    loginModal.classList.add('open');
-    setTimeout(function() { devPassInput.focus(); }, 100);
-    // Close mobile menu if open
-    var mobileMenu = document.getElementById('mobileMenu');
-    if (mobileMenu) mobileMenu.classList.remove('open');
-  }
-
-  if (devBtn) devBtn.addEventListener('click', handleDevClick);
-  if (devBtnMobile) devBtnMobile.addEventListener('click', handleDevClick);
-
-  if (sessionStorage.getItem('devAuth') === '1') {
-    setDevState(true);
-  }
-
-  // Update attemptLogin to use setDevState
-  var _origAttemptLogin = attemptLogin;
-  attemptLogin = function() {
-    var pass = devPassInput.value;
-    if (!pass) return;
-    sha256(pass).then(function(hash) {
-      if (hash === DEV_PASS_HASH) {
-        failedAttempts = 0;
-        sessionStorage.setItem('devAuth', '1');
-        setDevState(true);
-        closeLoginModal();
-      } else {
-        failedAttempts++;
-        devLoginError.classList.add('visible');
-        devPassInput.value = '';
-        devPassInput.focus();
-        setTimeout(function() { devLoginError.classList.remove('visible'); }, 2000);
-      }
-    });
-  };
 })(window.ARX);
