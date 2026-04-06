@@ -414,29 +414,37 @@
       setTimeout(function() { panel.remove(); }, 300);
     });
 
-    // Google Apps Script JSONP fetch
-    var cbName = '_arxCb' + Date.now();
-    var timeout = setTimeout(function() {
-      delete window[cbName];
-      panel.querySelector('.analytics-body').innerHTML =
-        '<div class="analytics-error">Timed out fetching data. Make sure Apps Script doGet returns callback wrapper.</div>';
-    }, 12000);
-    window[cbName] = function(data) {
-      clearTimeout(timeout);
-      delete window[cbName];
-      renderAnalytics(panel.querySelector('.analytics-body'), data);
-    };
-    var s = document.createElement('script');
-    s.src = ANALYTICS_ENDPOINT + '?callback=' + cbName;
-    s.onload = function() { s.remove(); };
-    s.onerror = function() {
-      clearTimeout(timeout);
-      delete window[cbName];
-      s.remove();
-      panel.querySelector('.analytics-body').innerHTML =
-        '<div class="analytics-error">Failed to load analytics script. Check deployment.</div>';
-    };
-    document.head.appendChild(s);
+    // Fetch analytics data
+    fetch(ANALYTICS_ENDPOINT, { redirect: 'follow' })
+      .then(function(resp) { return resp.json(); })
+      .then(function(data) {
+        renderAnalytics(panel.querySelector('.analytics-body'), data);
+      })
+      .catch(function() {
+        // Fallback: JSONP if fetch fails (CORS)
+        var cbName = '_arxCb' + Date.now();
+        var timeout = setTimeout(function() {
+          delete window[cbName];
+          panel.querySelector('.analytics-body').innerHTML =
+            '<div class="analytics-error">Timed out fetching data.</div>';
+        }, 12000);
+        window[cbName] = function(data) {
+          clearTimeout(timeout);
+          delete window[cbName];
+          renderAnalytics(panel.querySelector('.analytics-body'), data);
+        };
+        var s = document.createElement('script');
+        s.src = ANALYTICS_ENDPOINT + '?callback=' + cbName;
+        s.onload = function() { s.remove(); };
+        s.onerror = function() {
+          clearTimeout(timeout);
+          delete window[cbName];
+          s.remove();
+          panel.querySelector('.analytics-body').innerHTML =
+            '<div class="analytics-error">Failed to load analytics data. Check deployment.</div>';
+        };
+        document.head.appendChild(s);
+      });
   };
 
   function renderAnalytics(container, data) {
