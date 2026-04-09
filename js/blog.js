@@ -74,6 +74,9 @@
     },
   ];
 
+  // Expose for devmode
+  ARX.blogPosts = blogPosts;
+
   // ========== RENDER BLOG CARDS ==========
   var blogGrid = document.getElementById('blogGrid');
   if (!blogGrid) return;
@@ -108,6 +111,7 @@
   }
 
   renderAllCards();
+  ARX.renderBlogCards = renderAllCards;
 
   function formatDate(dateStr) {
     var d = new Date(dateStr + 'T00:00:00');
@@ -126,15 +130,24 @@
         '<h2 class="blog-modal-title" id="blogModalTitle"></h2>' +
       '</div>' +
       '<div class="blog-modal-body" id="blogModalBody"></div>' +
+      '<div class="blog-modal-actions" id="blogModalActions"></div>' +
     '</div>';
   document.body.appendChild(blogModal);
 
   var blogModalClose = document.getElementById('blogModalClose');
-  blogModalClose.addEventListener('click', function() { blogModal.classList.remove('open'); });
-  blogModal.addEventListener('click', function(e) { if (e.target === blogModal) blogModal.classList.remove('open'); });
-  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && blogModal.classList.contains('open')) blogModal.classList.remove('open'); });
+  blogModalClose.addEventListener('click', closeBlogModal);
+  blogModal.addEventListener('click', function(e) { if (e.target === blogModal) closeBlogModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && blogModal.classList.contains('open')) closeBlogModal(); });
+
+  var currentEditPost = null;
+
+  function closeBlogModal() {
+    blogModal.classList.remove('open');
+    currentEditPost = null;
+  }
 
   function openBlogModal(post) {
+    currentEditPost = post;
     var tagsHTML = post.tags.map(function(t) {
       return '<span class="blog-tag">' + t + '</span>';
     }).join('');
@@ -144,6 +157,95 @@
       '<div class="blog-tags">' + tagsHTML + '</div>';
     document.getElementById('blogModalTitle').textContent = post.title;
     document.getElementById('blogModalBody').innerHTML = post.content;
+
+    // Show edit button if in dev mode
+    var actions = document.getElementById('blogModalActions');
+    actions.innerHTML = '';
+    if (ARX.devMode && ARX.auth && ARX.auth.isOwner()) {
+      var editBtn = document.createElement('button');
+      editBtn.className = 'dev-btn dev-btn-edit';
+      editBtn.textContent = 'Edit Post';
+      editBtn.addEventListener('click', function() { enterBlogEdit(post); });
+      actions.appendChild(editBtn);
+    }
+
     blogModal.classList.add('open');
+  }
+
+  ARX.openBlogModal = openBlogModal;
+
+  function enterBlogEdit(post) {
+    var modal = blogModal.querySelector('.blog-modal');
+
+    var metaEl = document.getElementById('blogModalMeta');
+    var titleEl = document.getElementById('blogModalTitle');
+    var bodyEl = document.getElementById('blogModalBody');
+    var actionsEl = document.getElementById('blogModalActions');
+
+    metaEl.innerHTML =
+      '<div class="dev-edit-row">' +
+        '<label>Date:</label><input type="date" class="dev-input" id="editPostDate" value="' + post.date + '" />' +
+      '</div>' +
+      '<div class="dev-edit-row">' +
+        '<label>Tags (comma-separated):</label><input type="text" class="dev-input" id="editPostTags" value="' + post.tags.join(', ') + '" />' +
+      '</div>';
+
+    titleEl.innerHTML = '<input type="text" class="dev-input dev-input-title" id="editPostTitle" value="' + post.title.replace(/"/g, '&quot;') + '" />';
+
+    bodyEl.innerHTML =
+      '<div class="dev-edit-row">' +
+        '<label>Excerpt:</label>' +
+        '<textarea class="dev-textarea dev-textarea-sm" id="editPostExcerpt">' + escapeHTML(post.excerpt) + '</textarea>' +
+      '</div>' +
+      '<div class="dev-edit-row">' +
+        '<label>Content (HTML):</label>' +
+        '<textarea class="dev-textarea" id="editPostContent">' + escapeHTML(post.content) + '</textarea>' +
+      '</div>';
+
+    actionsEl.innerHTML = '';
+    var saveBtn = document.createElement('button');
+    saveBtn.className = 'dev-btn dev-btn-save';
+    saveBtn.textContent = 'Save';
+    saveBtn.addEventListener('click', function() { saveBlogEdit(post); });
+
+    var cancelBtn = document.createElement('button');
+    cancelBtn.className = 'dev-btn dev-btn-cancel';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', function() { openBlogModal(post); });
+
+    actionsEl.appendChild(saveBtn);
+    actionsEl.appendChild(cancelBtn);
+  }
+
+  function saveBlogEdit(post) {
+    var title = document.getElementById('editPostTitle').value.trim();
+    var date = document.getElementById('editPostDate').value.trim();
+    var tags = document.getElementById('editPostTags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
+    var excerpt = document.getElementById('editPostExcerpt').value.trim();
+    var content = document.getElementById('editPostContent').value.trim();
+
+    if (!title || !content) { alert('Title and content are required.'); return; }
+
+    // Update in-memory
+    post.title = title;
+    post.date = date;
+    post.tags = tags;
+    post.excerpt = excerpt;
+    post.content = content;
+
+    // Re-render cards
+    renderAllCards();
+
+    // Mark blog as dirty for devmode save
+    ARX.blogDirty = true;
+
+    // Show updated modal
+    openBlogModal(post);
+
+    if (ARX.devShowToast) ARX.devShowToast('Blog post updated (unsaved)');
+  }
+
+  function escapeHTML(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 })(window.ARX);

@@ -546,6 +546,7 @@
       'js/typewriter.js',
       'js/nav.js',
       'js/music.js',
+      'js/auth.js',
       'js/terminal.js',
       'js/projects.js',
       'js/skills.js',
@@ -553,6 +554,7 @@
       'js/contact.js',
       'js/features.js',
       'js/easter-eggs.js',
+      'js/devmode.js',
       'js/init.js'
     ];
     
@@ -562,7 +564,7 @@
         var s = document.createElement('script');
         // Add cache-busting (the `?t=`) to prevent old data from showing up
         s.src = file + '?t=' + t;
-        s.async = true; // Preserve execution order
+        s.async = false; // Preserve execution order
         document.body.appendChild(s);
       }
     });

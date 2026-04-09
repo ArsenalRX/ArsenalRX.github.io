@@ -1049,5 +1049,65 @@ body.reticle-active a, body.reticle-active button, body.reticle-active input { c
   .blog-modal-title { font-size: 1.2rem; }
   .footer-nav { gap: 12px; }
   .footer-nav a { font-size: 0.7rem; }
+  .dev-mode-toggle { bottom: 16px; right: 16px; width: 40px; height: 40px; }
+  .dev-toolbar { flex-direction: column; gap: 8px; padding: 8px 12px; }
 }
+
+/* ========== AUTH BUTTON ========== */
+.nav-auth-btn { background: none; border: 1px solid var(--glass-border); border-radius: 8px; padding: 6px 8px; cursor: pointer; display: flex; align-items: center; color: var(--text-dim); transition: all 0.3s ease; }
+.nav-auth-btn:hover { color: var(--accent); border-color: var(--accent); }
+.nav-auth-btn.authenticated { color: var(--accent2, #00ffaa); border-color: var(--accent2, #00ffaa); }
+.nav-auth-btn.authenticated:hover { color: #ff4444; border-color: #ff4444; }
+
+/* ========== DEV MODE TOGGLE ========== */
+.dev-mode-toggle { position: fixed; bottom: 24px; right: 24px; z-index: 9998; width: 48px; height: 48px; border-radius: 50%; background: var(--bg-light); border: 1px solid var(--glass-border); color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.dev-mode-toggle:hover { color: var(--accent); border-color: var(--accent); transform: scale(1.1); }
+.dev-mode-toggle.active { color: var(--accent); border-color: var(--accent); background: rgba(255,45,45,0.1); box-shadow: 0 0 20px rgba(255,45,45,0.3); }
+
+/* ========== DEV TOOLBAR ========== */
+.dev-toolbar { position: fixed; top: 0; left: 0; right: 0; z-index: 10000; background: rgba(10,10,15,0.95); backdrop-filter: blur(12px); border-bottom: 2px solid var(--accent); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; transform: translateY(-100%); transition: transform 0.3s ease; }
+.dev-toolbar.visible { transform: translateY(0); }
+.dev-toolbar-left { display: flex; align-items: center; gap: 12px; }
+.dev-toolbar-right { display: flex; align-items: center; gap: 8px; }
+.dev-toolbar-badge { background: var(--accent); color: #000; font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; letter-spacing: 1px; }
+.dev-toolbar-user { color: var(--text-dim); font-family: 'Space Mono', monospace; font-size: 0.75rem; }
+
+/* ========== DEV BUTTONS ========== */
+.dev-btn { font-family: 'Space Mono', monospace; font-size: 0.75rem; padding: 6px 14px; border-radius: 6px; border: 1px solid var(--glass-border); cursor: pointer; transition: all 0.2s ease; }
+.dev-btn-save { background: rgba(0,255,170,0.1); color: #00ffaa; border-color: rgba(0,255,170,0.3); }
+.dev-btn-save:hover { background: rgba(0,255,170,0.2); border-color: #00ffaa; }
+.dev-btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+.dev-btn-cancel { background: rgba(255,255,255,0.05); color: var(--text-dim); }
+.dev-btn-cancel:hover { color: #ff4444; border-color: #ff4444; }
+.dev-btn-edit { background: rgba(255,45,45,0.1); color: var(--accent); border-color: rgba(255,45,45,0.3); }
+.dev-btn-edit:hover { background: rgba(255,45,45,0.2); border-color: var(--accent); }
+
+/* ========== DEV EDITABLE SECTIONS ========== */
+.dev-mode-active .dev-editable { outline: 2px dashed rgba(255,45,45,0.3); outline-offset: 4px; border-radius: 4px; transition: outline-color 0.2s ease; min-height: 1em; }
+.dev-mode-active .dev-editable:hover { outline-color: rgba(255,45,45,0.6); }
+.dev-mode-active .dev-editable:focus { outline-color: var(--accent); outline-style: solid; background: rgba(255,45,45,0.03); }
+.dev-editable-label { position: absolute !important; top: -20px; left: 0; font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--accent); background: rgba(10,10,15,0.9); padding: 2px 6px; border-radius: 3px; pointer-events: none; white-space: nowrap; letter-spacing: 0.5px; }
+
+/* ========== DEV EDIT FORMS ========== */
+.dev-edit-row { margin-bottom: 12px; }
+.dev-edit-row label { display: block; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--accent); margin-bottom: 4px; letter-spacing: 0.5px; }
+.dev-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.85rem; transition: border-color 0.2s ease; box-sizing: border-box; }
+.dev-input:focus { border-color: var(--accent); outline: none; background: rgba(255,255,255,0.08); }
+.dev-input-title { font-size: 1.3rem; font-weight: 700; padding: 10px 12px; }
+.dev-textarea { width: 100%; min-height: 200px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 6px; padding: 12px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.8rem; line-height: 1.6; resize: vertical; transition: border-color 0.2s ease; box-sizing: border-box; }
+.dev-textarea:focus { border-color: var(--accent); outline: none; background: rgba(255,255,255,0.08); }
+.dev-textarea-sm { min-height: 80px; }
+
+/* ========== DEV TOAST ========== */
+.dev-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); z-index: 10001; background: rgba(10,10,15,0.95); border: 1px solid var(--accent2, #00ffaa); color: var(--accent2, #00ffaa); font-family: 'Space Mono', monospace; font-size: 0.75rem; padding: 10px 20px; border-radius: 8px; opacity: 0; pointer-events: none; transition: all 0.3s ease; white-space: nowrap; }
+.dev-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.dev-toast.dev-toast-error { border-color: #ff4444; color: #ff4444; }
+
+/* ========== BLOG MODAL ACTIONS ========== */
+.blog-modal-actions { display: flex; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--glass-border); }
+.blog-modal-actions:empty { display: none; }
+
+/* ========== DEV MODE BODY SHIFT ========== */
+.dev-mode-active .nav { top: 48px; }
+.dev-mode-active { padding-top: 48px; }
 
