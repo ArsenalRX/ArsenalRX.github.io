@@ -115,18 +115,22 @@
     btn.disabled = true;
     btn.textContent = 'Saving...';
 
-    var promises = [];
-    if (ARX.blogDirty) promises.push(saveBlogFile());
-    if (htmlDirty) promises.push(saveHTMLFile());
+    var needBlog = ARX.blogDirty;
+    var needHTML = htmlDirty;
 
-    if (!promises.length) {
+    if (!needBlog && !needHTML) {
       showToast('No changes to save');
       btn.disabled = false;
       btn.textContent = 'Save to GitHub';
       return;
     }
 
-    Promise.all(promises).then(function() {
+    // Save sequentially to avoid SHA conflicts between commits
+    var chain = Promise.resolve();
+    if (needBlog) chain = chain.then(function() { return saveBlogFile(); });
+    if (needHTML) chain = chain.then(function() { return saveHTMLFile(); });
+
+    chain.then(function() {
       ARX.blogDirty = false;
       htmlDirty = false;
 
