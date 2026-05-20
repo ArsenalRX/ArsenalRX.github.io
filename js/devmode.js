@@ -5,7 +5,7 @@
   // Editable HTML sections
   var editableSections = [
     { sel: '.about-text', label: 'About' },
-    { sel: '.nightreign-content', label: 'NightReign Banner' },
+    { sel: '.nightreign-content', label: 'Cerberus Banner' },
     { sel: '.hero-alias', label: 'Hero Alias' },
     { sel: '.contact-text', label: 'Contact Text' },
     { sel: '.footer-tagline', label: 'Footer Tagline' },
