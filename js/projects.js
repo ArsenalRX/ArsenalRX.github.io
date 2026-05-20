@@ -51,10 +51,15 @@
       try { return JSON.parse(localStorage.getItem('ghStats') || '{}'); } catch (e) { return {}; }
     }
 
+    // Clear stale cache from old format
     var cached = loadCache();
-    if (cached.ts && Date.now() - cached.ts < ARX.GITHUB_CACHE_TTL) {
-      if (projectEl) animateCount(projectEl, cached.repos);
-      if (contribEl) animateCount(contribEl, cached.contributions);
+    if (cached.commits !== undefined && cached.contributions === undefined) {
+      try { localStorage.removeItem('ghStats'); } catch (e) {}
+      cached = {};
+    }
+    if (cached.ts && Date.now() - cached.ts < ARX.GITHUB_CACHE_TTL && cached.contributions !== undefined) {
+      if (projectEl) animateCount(projectEl, cached.repos || 0);
+      if (contribEl) animateCount(contribEl, cached.contributions || 0);
       return;
     }
 
