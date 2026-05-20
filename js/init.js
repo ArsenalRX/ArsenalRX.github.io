@@ -1,6 +1,42 @@
-(function(ARX) {
-  // Final help command update (all modules loaded, all commands registered)
-  ARX.terminalCommands.help = function() {
-    return 'Available commands:\n  <span class="cmd-highlight">about</span>      - Learn about me\n  <span class="cmd-highlight">skills</span>     - View my skills\n  <span class="cmd-highlight">projects</span>   - See my projects\n  <span class="cmd-highlight">contact</span>    - How to reach me\n  <span class="cmd-highlight">github</span>     - Open my GitHub\n  <span class="cmd-highlight">neofetch</span>   - System info\n  <span class="cmd-highlight">ls</span>         - List project files\n  <span class="cmd-highlight">whoami</span>     - Who are you?\n  <span class="cmd-highlight">date</span>       - Current date\n  <span class="cmd-highlight">music</span>      - Toggle music on/off\n  <span class="cmd-highlight">theme</span>      - Cycle color schemes\n  <span class="cmd-highlight">matrix</span>     - Enter the Matrix\n  <span class="cmd-highlight">weather</span>    - Current weather\n  <span class="cmd-highlight">trail</span>      - Change cursor trail color\n  <span class="cmd-highlight">ghost</span>      - Toggle ghost cursor\n  <span class="cmd-highlight">sniff</span>      - Toggle packet sniffer\n  <span class="cmd-highlight">visualize</span>  - Music-reactive visualizer\n  <span class="cmd-highlight">map</span>        - Orbital command map\n  <span class="cmd-highlight">secrets</span>    - View discovered secrets\n  <span class="cmd-highlight">secret</span>     - ???\n  <span class="cmd-highlight">hack</span>       - Hack the mainframe\n  <span class="cmd-highlight">clear</span>      - Clear terminal';
-  };
-})(window.ARX);
+(function() {
+  // ========== SCROLL PROGRESS BAR ==========
+  var progressBar = document.getElementById('scrollProgress');
+  var topBtn = document.getElementById('topBtn');
+
+  function updateScroll() {
+    var scrollTop = window.scrollY;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    if (progressBar) progressBar.style.width = progress + '%';
+    if (topBtn) topBtn.classList.toggle('visible', scrollTop > 400);
+  }
+  window.addEventListener('scroll', updateScroll, { passive: true });
+
+  if (topBtn) {
+    topBtn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // ========== REVEAL ON SCROLL ==========
+  var reveals = document.querySelectorAll('.reveal');
+  var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  reveals.forEach(function(el) { revealObserver.observe(el); });
+
+  // ========== NAV SCROLL STYLE ==========
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll', function() {
+    if (nav) nav.classList.toggle('scrolled', window.scrollY > 50);
+  }, { passive: true });
+
+  // ========== CURRENT YEAR ==========
+  var yearEl = document.getElementById('currentYear');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+})();

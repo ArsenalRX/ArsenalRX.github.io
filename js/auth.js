@@ -73,9 +73,9 @@
       '<line x1="21" y1="12" x2="9" y2="12"/>' +
     '</svg>';
 
-  var musicToggle = document.getElementById('musicToggle');
-  if (musicToggle && musicToggle.parentNode) {
-    musicToggle.parentNode.insertBefore(btn, musicToggle.nextSibling);
+  var hamburger = document.getElementById('hamburger');
+  if (hamburger && hamburger.parentNode) {
+    hamburger.parentNode.insertBefore(btn, hamburger);
   }
 
   btn.addEventListener('click', function() {

@@ -42,13 +42,6 @@
     date: function() { return 'Current date: <span class="cmd-highlight">' + new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + '</span>'; },
     whoami: function() { return 'You are a <span class="cmd-highlight">visitor</span> exploring Evan\'s portfolio. Welcome!'; },
 
-    music: function() {
-      if (ARX.siteMusic) ARX.siteMusic.toggle();
-      return (ARX.siteMusic && ARX.siteMusic.muted)
-        ? '<span style="color:#f85149;">\u266a Music: MUTED</span>'
-        : '<span style="color:#00ff66;">\u266a Music: ON</span> \u2014 Now playing: <span class="cmd-highlight">Snowfall</span>';
-    },
-
     theme: function() {
       var themeActive = terminalCommands._themeActive;
       if (themeActive) return 'Theme is already shifting...';
@@ -239,5 +232,5 @@
   }
 
   // Final help command (after all commands registered)
-  terminalCommands.help = function() { return 'Available commands:\n  <span class="cmd-highlight">about</span>      - Learn about me\n  <span class="cmd-highlight">skills</span>     - View my skills\n  <span class="cmd-highlight">projects</span>   - See my projects\n  <span class="cmd-highlight">contact</span>    - How to reach me\n  <span class="cmd-highlight">github</span>     - Open my GitHub\n  <span class="cmd-highlight">neofetch</span>   - System info\n  <span class="cmd-highlight">ls</span>         - List project files\n  <span class="cmd-highlight">whoami</span>     - Who are you?\n  <span class="cmd-highlight">date</span>       - Current date\n  <span class="cmd-highlight">music</span>      - Toggle music on/off\n  <span class="cmd-highlight">theme</span>      - Cycle color schemes\n  <span class="cmd-highlight">matrix</span>     - Enter the Matrix\n  <span class="cmd-highlight">weather</span>    - Current weather\n  <span class="cmd-highlight">trail</span>      - Change cursor trail color\n  <span class="cmd-highlight">ghost</span>      - Toggle ghost cursor\n  <span class="cmd-highlight">sniff</span>      - Toggle packet sniffer\n  <span class="cmd-highlight">visualize</span>  - Music-reactive visualizer\n  <span class="cmd-highlight">map</span>        - Orbital command map\n  <span class="cmd-highlight">secret</span>     - ???\n  <span class="cmd-highlight">hack</span>       - Hack the mainframe\n  <span class="cmd-highlight">clear</span>      - Clear terminal'; };
+  terminalCommands.help = function() { return 'Available commands:\n  <span class="cmd-highlight">about</span>      - Learn about me\n  <span class="cmd-highlight">skills</span>     - View my skills\n  <span class="cmd-highlight">projects</span>   - See my projects\n  <span class="cmd-highlight">contact</span>    - How to reach me\n  <span class="cmd-highlight">github</span>     - Open my GitHub\n  <span class="cmd-highlight">neofetch</span>   - System info\n  <span class="cmd-highlight">ls</span>         - List project files\n  <span class="cmd-highlight">whoami</span>     - Who are you?\n  <span class="cmd-highlight">date</span>       - Current date\n  <span class="cmd-highlight">theme</span>      - Cycle color schemes\n  <span class="cmd-highlight">matrix</span>     - Enter the Matrix\n  <span class="cmd-highlight">weather</span>    - Current weather\n  <span class="cmd-highlight">trail</span>      - Change cursor trail color\n  <span class="cmd-highlight">ghost</span>      - Toggle ghost cursor\n  <span class="cmd-highlight">sniff</span>      - Toggle packet sniffer\n  <span class="cmd-highlight">visualize</span>  - Music-reactive visualizer\n  <span class="cmd-highlight">map</span>        - Orbital command map\n  <span class="cmd-highlight">secret</span>     - ???\n  <span class="cmd-highlight">hack</span>       - Hack the mainframe\n  <span class="cmd-highlight">clear</span>      - Clear terminal'; };
 })(window.ARX);

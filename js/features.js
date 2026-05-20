@@ -210,7 +210,7 @@
       vizAnalyser = vizContext.createAnalyser();
       vizAnalyser.fftSize = 256;
       vizDataArray = new Uint8Array(vizAnalyser.frequencyBinCount);
-      vizSource = vizContext.createMediaElementSource(ARX.siteMusic.audio);
+      return false;
       vizSource.connect(vizAnalyser);
       vizAnalyser.connect(vizContext.destination);
       return true;
@@ -243,12 +243,6 @@
   ARX.terminalCommands.visualize = function() {
     ARX.vizActive = !ARX.vizActive;
     if (ARX.vizActive) {
-      if (!ARX.siteMusic.started || ARX.siteMusic.muted) {
-        ARX.siteMusic.muted = false;
-        ARX.siteMusic.unmute();
-        if (ARX.siteMusic.audio) ARX.siteMusic.audio.play().catch(function() {});
-        ARX.siteMusic.started = true;
-      }
       if (!initVisualizer()) {
         ARX.vizActive = false;
         return '<span style="color:#f85149;">Audio visualizer failed to initialize.</span>';

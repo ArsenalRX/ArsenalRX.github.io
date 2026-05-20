@@ -66,14 +66,12 @@
 
   // ========== BLOOPIN EASTER EGG ==========
   var bloopinActive = false;
-  var bloopinOverlay = null, bloopinInterval = null, bloopinAudio = null;
+  var bloopinOverlay = null, bloopinInterval = null;
 
   ARX.terminalCommands[atob('Ymxvb3Bpbg==')] = function() {
     if (bloopinActive) return '<span style="color:#00ff00;">BLOOPIN IS ALREADY HAPPENING</span>';
     bloopinActive = true;
     markSecret('bloopin');
-    if (ARX.siteMusic) ARX.siteMusic.mute();
-
     bloopinOverlay = document.createElement('div');
     bloopinOverlay.className = 'bloopin-overlay';
     var img1 = document.createElement('img');
@@ -84,10 +82,6 @@
     hint.className = 'bloopin-text'; hint.textContent = 'press ESC to end the madness';
     bloopinOverlay.appendChild(img1); bloopinOverlay.appendChild(img2); bloopinOverlay.appendChild(hint);
     document.body.appendChild(bloopinOverlay);
-
-    bloopinAudio = new Audio('music/bloopin.mp3');
-    bloopinAudio.volume = 0.4; bloopinAudio.loop = true;
-    bloopinAudio.play().catch(function() {});
 
     var showFirst = true;
     var beatMs = 60000 / 130;
@@ -109,7 +103,7 @@
 
   // ========== LIMINAL DREAMCORE EASTER EGG ==========
   var liminalActive = false;
-  var liminalOverlay = null, liminalAudio = null, liminalSlideInterval = null, liminalGlitchInterval = null;
+  var liminalOverlay = null, liminalSlideInterval = null, liminalGlitchInterval = null;
   var liminalImages = ['liminal1.jpg', 'liminal2.jpg', 'liminal3.jpg', 'liminal4.jpg'];
   var liminalTexts = [
     { text: 'Do you remember this place?', size: '2rem', x: '15%', y: '20%' },
@@ -126,8 +120,6 @@
     if (liminalActive) return '<span style="color:#c4b277;">You\'re already here.</span>';
     liminalActive = true;
     markSecret('liminal');
-    if (ARX.siteMusic) ARX.siteMusic.mute();
-
     liminalOverlay = document.createElement('div');
     liminalOverlay.className = 'liminal-overlay';
 
@@ -155,10 +147,6 @@
     var hint = document.createElement('div'); hint.className = 'liminal-hint';
     hint.textContent = 'press ESC to wake up'; liminalOverlay.appendChild(hint);
     document.body.appendChild(liminalOverlay);
-
-    liminalAudio = new Audio('music/liminal.mp3');
-    liminalAudio.volume = 0.25; liminalAudio.loop = true;
-    liminalAudio.play().catch(function() {});
 
     var currentSlide = 0;
     var slides = liminalOverlay.querySelectorAll('.liminal-slide');
@@ -205,25 +193,12 @@
         liminalOverlay.style.transition = 'opacity 1.5s ease'; liminalOverlay.style.opacity = '0';
         setTimeout(function() { if (liminalOverlay) { liminalOverlay.remove(); liminalOverlay = null; } }, 1500);
       }
-      if (liminalAudio) {
-        var fadeOut = setInterval(function() {
-          if (liminalAudio && liminalAudio.volume > 0.02) {
-            liminalAudio.volume = Math.max(0, liminalAudio.volume - 0.03);
-          } else {
-            if (liminalAudio) { liminalAudio.pause(); liminalAudio = null; }
-            clearInterval(fadeOut);
-          }
-        }, 50);
-      }
-      if (ARX.siteMusic && !ARX.siteMusic.muted) ARX.siteMusic.unmute();
       return '<span style="color:#c4b277; font-family: \'Times New Roman\', serif;">You wake up. Was it real?</span>';
     }
     if (bloopinActive) {
       bloopinActive = false;
       if (bloopinInterval) { clearInterval(bloopinInterval); bloopinInterval = null; }
       if (bloopinOverlay) { bloopinOverlay.remove(); bloopinOverlay = null; }
-      if (bloopinAudio) { bloopinAudio.pause(); bloopinAudio = null; }
-      if (ARX.siteMusic && !ARX.siteMusic.muted) ARX.siteMusic.unmute();
       return '<span style="color:#f85149;">Bloopin stopped. You survived.</span>';
     }
     return 'Nothing to stop.';
