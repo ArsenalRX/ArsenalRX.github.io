@@ -285,7 +285,9 @@ strong { color: var(--text-bright); font-weight: 600; }
 /* ========== CYBERSECURITY ========== */
 .cyber-grid { display: flex; flex-direction: column; gap: 32px; }
 .cyber-intro p { font-size: 1rem; line-height: 1.8; color: var(--text); max-width: 700px; }
-.cyber-focus-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.cyber-focus-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 900px) { .cyber-focus-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .cyber-focus-cards { grid-template-columns: 1fr; } }
 .cyber-card {
   padding: 24px; border-radius: var(--radius);
   background: var(--bg-card); border: 1px solid var(--border);
@@ -301,6 +303,19 @@ strong { color: var(--text-bright); font-weight: 600; }
 .cyber-card-icon { margin-bottom: 12px; }
 .cyber-card h4 { font-family: 'Sora', sans-serif; font-size: 0.95rem; color: var(--text-bright); margin-bottom: 8px; font-weight: 600; }
 .cyber-card p { font-size: 0.85rem; line-height: 1.6; color: var(--text-dim); }
+.accent-link { color: var(--accent); text-decoration: none; font-weight: 500; border-bottom: 1px solid rgba(232,160,32,0.3); transition: border-color 0.2s; }
+.accent-link:hover { border-color: var(--accent); }
+.cyber-cerberus-link { margin-top: 32px; }
+.cyber-cerberus-btn {
+  display: flex; align-items: center; gap: 16px; padding: 20px 28px;
+  border-radius: var(--radius); background: var(--bg-card); border: 1px solid var(--border);
+  text-decoration: none; color: var(--text); transition: all var(--transition);
+}
+.cyber-cerberus-btn:hover { border-color: rgba(232,160,32,0.25); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(232,160,32,0.06); }
+.cyber-cerberus-icon { font-size: 1.6rem; flex-shrink: 0; }
+.cyber-cerberus-btn strong { display: block; color: var(--text-bright); font-family: 'Sora', sans-serif; font-size: 0.95rem; font-weight: 600; }
+.cyber-cerberus-sub { display: block; font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
+.cyber-cerberus-btn svg { margin-left: auto; color: var(--accent); flex-shrink: 0; }
 
 /* ========== PROJECTS ========== */
 .projects-category-title {

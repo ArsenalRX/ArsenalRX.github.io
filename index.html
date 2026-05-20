@@ -161,38 +161,62 @@
       <h2 class="section-title reveal"><span class="section-number">02.</span> Cybersecurity</h2>
       <div class="cyber-grid reveal">
         <div class="cyber-intro">
-          <p>I've been self-teaching cybersecurity since I was young — taking things apart, breaking into systems I owned, and figuring out how everything works under the hood. From kernel internals and memory exploitation to network traffic analysis, I'm always digging deeper into the stuff most people never touch.</p>
+          <p>Self-taught from a young age — I started by tearing apart systems I owned, learning how exploits worked at the binary level, and building defenses against them. That curiosity evolved into deep expertise across kernel security, hardware-layer attacks, and AI-driven threat detection. Today I co-lead a <a href="/cerberus/" class="accent-link">75-person engineering team</a> building Cerberus, a next-generation anti-cheat engine tackling problems that EAC, BattlEye, and Vanguard still can't solve.</p>
         </div>
         <div class="cyber-focus-cards">
           <div class="cyber-card">
             <div class="cyber-card-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
-            <h4>System Hardening</h4>
-            <p>Kernel internals, driver security, and OS-level attack surface reduction. Understanding Windows and Linux at the lowest levels.</p>
+            <h4>Kernel & Driver Security</h4>
+            <p>Ring-0 driver development, integrity monitoring, code-signing enforcement, and memory permission auditing. Deep Windows kernel internals — WDM, WDF, syscall interception, and hypervisor-aware protection.</p>
           </div>
           <div class="cyber-card">
             <div class="cyber-card-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
             </div>
-            <h4>Privacy & Anti-Tracking</h4>
-            <p>Data broker removal, hardware fingerprint research, and building tools that put privacy back in the user's hands.</p>
+            <h4>Hardware Attack Research</h4>
+            <p>DMA attacks over PCIe, firmware spoofing on Screamer-class boards, external memory reads from secondary machines, and FPGA-based exploit tooling. Building detection systems for attacks that happen below the OS.</p>
           </div>
           <div class="cyber-card">
             <div class="cyber-card-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
             </div>
             <h4>Reverse Engineering</h4>
-            <p>Binary analysis, memory pattern recognition, and cheat detection systems. Taking things apart to understand how they work.</p>
+            <p>Binary analysis, cheat loader dissection, anti-tamper bypass research, and pattern-based detection engineering. Understanding offense to build better defense.</p>
+          </div>
+          <div class="cyber-card">
+            <div class="cyber-card-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <h4>AI Threat Detection</h4>
+            <p>Behavioral anomaly detection using real-time ML inference. Training models to identify statistically impossible input patterns, inhuman reaction times, and micro-movement signatures across competitive environments.</p>
+          </div>
+          <div class="cyber-card">
+            <div class="cyber-card-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <h4>Privacy Engineering</h4>
+            <p>Data broker scanning and automated removal, hardware fingerprint obfuscation, and building zero-telemetry systems that prove security doesn't require surveillance.</p>
           </div>
           <div class="cyber-card">
             <div class="cyber-card-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             </div>
-            <h4>Network Analysis</h4>
-            <p>Traffic monitoring, protocol inspection, and building tools to visualize what's really happening on the wire.</p>
+            <h4>Network & Protocol Analysis</h4>
+            <p>Deep packet inspection, traffic anomaly detection, protocol fuzzing, and building visualization tools to map real-time network behavior across distributed systems.</p>
           </div>
         </div>
+      </div>
+      <div class="cyber-cerberus-link reveal">
+        <a href="/cerberus/" class="cyber-cerberus-btn">
+          <span class="cyber-cerberus-icon">&#x1F6E1;</span>
+          <span>
+            <strong>Cerberus Anti-Cheat Engine</strong>
+            <span class="cyber-cerberus-sub">Three-layer game protection &mdash; View the project</span>
+          </span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
       </div>
     </div>
   </section>
