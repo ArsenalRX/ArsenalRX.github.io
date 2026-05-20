@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cerberus - Next-Generation Anti-Cheat Engine</title>
+  <meta name="description" content="Cerberus — Three-layer anti-cheat engine with kernel protection, behavioral AI, and hardware fingerprinting. Zero telemetry. Zero compromise." />
+  <meta property="og:title" content="Cerberus Anti-Cheat" />
+  <meta property="og:description" content="Three heads. Three layers. Nothing gets past the gate." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#e8a020" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1F6E1;</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #050507;
+      --bg-card: #0a0a0f;
+      --bg-card-hover: #0e0e15;
+      --accent: #e8a020;
+      --accent-dim: rgba(232,160,32,0.15);
+      --accent-glow: rgba(232,160,32,0.08);
+      --text: #c8ccd4;
+      --text-bright: #eef0f4;
+      --text-dim: #6b7084;
+      --border: rgba(255,255,255,0.06);
+      --red: #e04050;
+      --green: #30c860;
+      --blue: #4088e8;
+      --purple: #8860e8;
+      --font: 'Inter', -apple-system, sans-serif;
+      --font-heading: 'Sora', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: rgba(232,160,32,0.25); color: var(--text-bright); }
+
+    /* ===== BACKGROUND EFFECTS ===== */
+    .grid-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(232,160,32,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,160,32,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .grid-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(232,160,32,0.06), transparent 70%);
+    }
+
+    .noise-overlay {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 256px 256px;
+    }
+
+    /* ===== NAV ===== */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 16px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,5,7,0.8);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none; color: var(--text-bright);
+    }
+    .nav-logo {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), #c07818);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-heading); font-weight: 800; font-size: 0.85rem; color: #050507;
+    }
+    .nav-wordmark {
+      font-family: var(--font-heading); font-weight: 700; font-size: 1.1rem;
+      letter-spacing: -0.5px;
+    }
+    .nav-wordmark span { color: var(--accent); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a {
+      color: var(--text-dim); text-decoration: none; font-size: 0.85rem; font-weight: 500;
+      transition: color 0.2s; letter-spacing: 0.3px;
+    }
+    .nav-links a:hover { color: var(--text-bright); }
+    .nav-cta {
+      padding: 8px 20px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+      background: var(--accent); color: #050507; text-decoration: none;
+      transition: all 0.2s; letter-spacing: 0.3px;
+    }
+    .nav-cta:hover { background: #d09018; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(232,160,32,0.3); }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 120px 24px 80px; position: relative; z-index: 1;
+    }
+    .hero-content { max-width: 800px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 18px; border-radius: 24px; margin-bottom: 32px;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+      background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(232,160,32,0.2);
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(232,160,32,0.4); }
+      50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(232,160,32,0); }
+    }
+    .hero-title {
+      font-family: var(--font-heading); font-size: clamp(3rem, 7vw, 5.5rem);
+      font-weight: 800; line-height: 1.05; color: var(--text-bright);
+      letter-spacing: -2px; margin-bottom: 24px;
+    }
+    .hero-title span { color: var(--accent); }
+    .hero-subtitle {
+      font-size: 1.15rem; color: var(--text-dim); max-width: 560px;
+      margin: 0 auto 40px; line-height: 1.7; font-weight: 400;
+    }
+    .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      padding: 14px 32px; border-radius: 10px; font-size: 0.9rem; font-weight: 600;
+      background: var(--accent); color: #050507; text-decoration: none; border: none; cursor: pointer;
+      transition: all 0.25s; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover { background: #d09018; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(232,160,32,0.3); }
+    .btn-secondary {
+      padding: 14px 32px; border-radius: 10px; font-size: 0.9rem; font-weight: 600;
+      background: transparent; color: var(--text-bright); text-decoration: none; border: 1px solid var(--border);
+      transition: all 0.25s; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.03); transform: translateY(-2px); }
+
+    .hero-stats {
+      display: flex; justify-content: center; gap: 48px; margin-top: 64px;
+      padding-top: 40px; border-top: 1px solid var(--border);
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-value { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+    .hero-stat-label { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+    /* ===== SECTIONS ===== */
+    .section {
+      padding: 100px 24px; position: relative; z-index: 1;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .section-header { text-align: center; margin-bottom: 64px; }
+    .section-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--font-heading); font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700; color: var(--text-bright); letter-spacing: -1px; margin-bottom: 16px;
+    }
+    .section-desc {
+      font-size: 1rem; color: var(--text-dim); max-width: 560px; margin: 0 auto; line-height: 1.7;
+    }
+
+    /* ===== THREAT LANDSCAPE (PROBLEM) ===== */
+    .threat-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .threat-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 32px; transition: all 0.3s ease; position: relative; overflow: hidden;
+    }
+    .threat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--red); opacity: 0.6;
+    }
+    .threat-card:hover { border-color: rgba(224,64,80,0.2); background: var(--bg-card-hover); transform: translateY(-4px); }
+    .threat-card-icon {
+      width: 40px; height: 40px; border-radius: 10px; margin-bottom: 20px;
+      background: rgba(224,64,80,0.1); display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+    .threat-card-name {
+      font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700;
+      color: var(--text-bright); margin-bottom: 8px;
+    }
+    .threat-card-flaw {
+      font-size: 0.8rem; color: var(--red); font-weight: 600; margin-bottom: 12px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .threat-card p { font-size: 0.88rem; color: var(--text-dim); line-height: 1.7; }
+
+    /* ===== THREE HEADS (FEATURES) ===== */
+    .heads-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .head-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 36px 32px; text-align: center; transition: all 0.3s ease; position: relative;
+    }
+    .head-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent); opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .head-card:hover::before { opacity: 1; }
+    .head-card:hover { border-color: rgba(232,160,32,0.15); background: var(--bg-card-hover); transform: translateY(-4px); }
+    .head-number {
+      font-family: var(--font-heading); font-size: 3rem; font-weight: 800;
+      color: rgba(232,160,32,0.1); line-height: 1; margin-bottom: 8px;
+    }
+    .head-icon {
+      width: 56px; height: 56px; border-radius: 14px; margin: 0 auto 20px;
+      background: var(--accent-dim); display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+    .head-title {
+      font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700;
+      color: var(--text-bright); margin-bottom: 12px;
+    }
+    .head-desc { font-size: 0.88rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 20px; }
+    .head-features { list-style: none; text-align: left; }
+    .head-features li {
+      font-size: 0.82rem; color: var(--text); padding: 6px 0;
+      border-top: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+    }
+    .head-features li::before { content: '\2713'; color: var(--accent); font-weight: 700; font-size: 0.75rem; }
+
+    /* ===== ARCHITECTURE ===== */
+    .arch-container {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 48px; overflow: hidden;
+    }
+    .arch-diagram {
+      font-family: var(--font-mono); font-size: 0.78rem; line-height: 1.9;
+      color: var(--text-dim); white-space: pre; overflow-x: auto;
+      padding: 24px; background: rgba(0,0,0,0.3); border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .arch-diagram .hl { color: var(--accent); font-weight: 600; }
+    .arch-diagram .dm { color: var(--text-dim); }
+    .arch-diagram .gr { color: var(--green); }
+    .arch-diagram .bl { color: var(--blue); }
+    .arch-diagram .pr { color: var(--purple); }
+    .arch-diagram .rd { color: var(--red); }
+    .arch-layers {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 32px;
+    }
+    .arch-layer {
+      padding: 20px; border-radius: 12px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.01);
+    }
+    .arch-layer-name {
+      font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600;
+      color: var(--accent); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .arch-layer p { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; }
+
+    /* ===== COMPARISON TABLE ===== */
+    .compare-table-wrap {
+      overflow-x: auto; border-radius: 16px; border: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .compare-table {
+      width: 100%; border-collapse: collapse; font-size: 0.85rem;
+    }
+    .compare-table th {
+      padding: 16px 20px; text-align: left; font-family: var(--font-heading);
+      font-weight: 600; color: var(--text-dim); font-size: 0.75rem;
+      letter-spacing: 1px; text-transform: uppercase;
+      border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);
+    }
+    .compare-table th:last-child { color: var(--accent); }
+    .compare-table td {
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      color: var(--text); vertical-align: middle;
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table td:first-child { font-weight: 500; color: var(--text-bright); font-size: 0.82rem; }
+    .compare-table td:last-child { color: var(--accent); font-weight: 500; }
+    .check { color: var(--green); font-weight: 700; }
+    .cross { color: var(--red); opacity: 0.5; }
+    .partial { color: #e8a020; opacity: 0.7; }
+
+    /* ===== CODE BLOCK ===== */
+    .code-section {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start;
+    }
+    .code-block {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden;
+    }
+    .code-header {
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.01);
+    }
+    .code-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .code-dot-r { background: var(--red); opacity: 0.6; }
+    .code-dot-y { background: #e8a020; opacity: 0.6; }
+    .code-dot-g { background: var(--green); opacity: 0.6; }
+    .code-filename {
+      font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim);
+      margin-left: auto;
+    }
+    .code-body {
+      padding: 20px; font-family: var(--font-mono); font-size: 0.78rem;
+      line-height: 1.8; color: var(--text-dim); overflow-x: auto;
+    }
+    .code-body .kw { color: var(--purple); }
+    .code-body .fn { color: var(--blue); }
+    .code-body .str { color: var(--green); }
+    .code-body .cm { color: #4a4e5a; font-style: italic; }
+    .code-body .tp { color: var(--accent); }
+    .code-info { display: flex; flex-direction: column; justify-content: center; }
+    .code-info h3 {
+      font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700;
+      color: var(--text-bright); margin-bottom: 16px; letter-spacing: -0.5px;
+    }
+    .code-info p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 16px; }
+    .code-info-features { list-style: none; }
+    .code-info-features li {
+      font-size: 0.85rem; color: var(--text); padding: 8px 0; display: flex; align-items: center; gap: 10px;
+    }
+    .code-info-features li::before { content: '\25B8'; color: var(--accent); }
+
+    /* ===== METRICS ===== */
+    .metrics-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    }
+    .metric-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 32px; text-align: center; transition: all 0.3s;
+    }
+    .metric-card:hover { border-color: rgba(232,160,32,0.15); transform: translateY(-4px); }
+    .metric-value {
+      font-family: var(--font-heading); font-size: 2.2rem; font-weight: 800; color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .metric-label { font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+    .metric-sub { font-size: 0.72rem; color: var(--text-dim); opacity: 0.5; margin-top: 4px; }
+
+    /* ===== TEAM ===== */
+    .team-banner {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 48px; text-align: center;
+    }
+    .team-count {
+      font-family: var(--font-heading); font-size: 3rem; font-weight: 800;
+      color: var(--accent); margin-bottom: 8px;
+    }
+    .team-label {
+      font-size: 1rem; color: var(--text-bright); font-weight: 500; margin-bottom: 24px;
+    }
+    .team-roles {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+    }
+    .team-role {
+      padding: 6px 18px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;
+      background: rgba(255,255,255,0.02); color: var(--text-dim); border: 1px solid var(--border);
+    }
+
+    /* ===== CTA ===== */
+    .cta-section {
+      padding: 120px 24px; text-align: center; position: relative; z-index: 1;
+    }
+    .cta-section h2 {
+      font-family: var(--font-heading); font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800; color: var(--text-bright); letter-spacing: -1.5px; margin-bottom: 16px;
+    }
+    .cta-section h2 span { color: var(--accent); }
+    .cta-section p { font-size: 1rem; color: var(--text-dim); margin-bottom: 40px; }
+    .cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .cta-note { font-size: 0.72rem; color: var(--text-dim); opacity: 0.5; margin-top: 24px; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      padding: 40px 24px; text-align: center; border-top: 1px solid var(--border);
+      position: relative; z-index: 1;
+    }
+    .footer-brand {
+      font-family: var(--font-heading); font-weight: 700; font-size: 1rem;
+      color: var(--text-bright); margin-bottom: 8px;
+    }
+    .footer-brand span { color: var(--accent); }
+    .footer p { font-size: 0.75rem; color: var(--text-dim); }
+    .footer a { color: var(--accent); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    /* ===== DIVIDER ===== */
+    .divider {
+      width: 60px; height: 2px; background: var(--accent); margin: 0 auto;
+      opacity: 0.3;
+    }
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .threat-grid, .heads-grid, .arch-layers { grid-template-columns: 1fr; }
+      .code-section { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-stats { gap: 32px; flex-wrap: wrap; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      .nav { padding: 12px 20px; }
+      .metrics-grid { grid-template-columns: 1fr; }
+      .hero-stats { flex-direction: column; gap: 24px; }
+      .arch-container { padding: 24px; }
+      .compare-table { font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="grid-bg"></div>
+  <div class="noise-overlay"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="#" class="nav-brand">
+      <div class="nav-logo">C</div>
+      <div class="nav-wordmark">Cerbe<span>rus</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="#threat">Problem</a>
+      <a href="#heads">Architecture</a>
+      <a href="#compare">Comparison</a>
+      <a href="#integration">Integration</a>
+      <a href="#metrics">Metrics</a>
+    </div>
+    <a href="#access" class="nav-cta">Request Access</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <div class="hero-badge-dot"></div>
+        IN ACTIVE DEVELOPMENT
+      </div>
+      <h1 class="hero-title">Three heads.<br/>Zero blind <span>spots.</span></h1>
+      <p class="hero-subtitle">Cerberus is a next-generation anti-cheat engine that combines kernel-level protection, behavioral AI, and hardware fingerprinting into a single unified defense layer. No rootkit. No telemetry. No compromise.</p>
+      <div class="hero-actions">
+        <a href="#access" class="btn-primary">
+          Request Early Access
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#heads" class="btn-secondary">
+          Read the Docs
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4v16M18 4v16M6 12h12M6 4h12M6 20h12"/></svg>
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value">3</div>
+          <div class="hero-stat-label">Detection Layers</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">&lt;2ms</div>
+          <div class="hero-stat-label">Scan Latency</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">75+</div>
+          <div class="hero-stat-label">Engineers</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">0</div>
+          <div class="hero-stat-label">Telemetry Collected</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THREAT LANDSCAPE -->
+  <section class="section" id="threat">
+    <div class="section-header reveal">
+      <div class="section-label">The Problem</div>
+      <h2 class="section-title">The anti-cheat industry is failing</h2>
+      <p class="section-desc">Every major solution on the market today was built to fight yesterday's cheats. Here's what they're missing.</p>
+    </div>
+    <div class="threat-grid">
+      <div class="threat-card reveal">
+        <div class="threat-card-icon">E</div>
+        <div class="threat-card-name">Easy Anti-Cheat</div>
+        <div class="threat-card-flaw">Signature-Dependent</div>
+        <p>Relies on static signature databases that get reverse-engineered and dumped to paste sites within hours of every update. Minimal kernel presence means no visibility into driver-level manipulation, DMA attacks, or hypervisor exploits. Prevention-focused with no behavioral analysis layer.</p>
+      </div>
+      <div class="threat-card reveal">
+        <div class="threat-card-icon">B</div>
+        <div class="threat-card-name">BattlEye</div>
+        <div class="threat-card-flaw">Blind Externally</div>
+        <p>Operates at ring-0 with aggressive memory scanning, but detection heuristics haven't evolved to match modern cheat loaders that map, execute, and unload before a single scan cycle completes. Completely blind to anything happening outside the machine — including DMA reads from a second PC.</p>
+      </div>
+      <div class="threat-card reveal">
+        <div class="threat-card-icon">V</div>
+        <div class="threat-card-name">Riot Vanguard</div>
+        <div class="threat-card-flaw">Privacy Tradeoff</div>
+        <p>Persistent kernel driver loads at boot and monitors your system 24/7 — even when you're not playing. Solved part of the kernel problem, but the always-on model alienated millions of players. Still can't reliably detect firmware-spoofed DMA boards or hypervisor-layer exploits running beneath the OS.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- THREE HEADS -->
+  <section class="section" id="heads">
+    <div class="section-header reveal">
+      <div class="section-label">The Solution</div>
+      <h2 class="section-title">Three heads, three layers of defense</h2>
+      <p class="section-desc">Each head of Cerberus guards a different attack surface. Together, they eliminate every blind spot in modern anti-cheat.</p>
+    </div>
+    <div class="heads-grid">
+      <div class="head-card reveal">
+        <div class="head-number">01</div>
+        <div class="head-icon">&#x1F6E1;</div>
+        <div class="head-title">Kernel Integrity</div>
+        <div class="head-desc">Real-time verification of every driver, syscall, and memory permission at ring-0. Catches threats before they execute.</div>
+        <ul class="head-features">
+          <li>Loaded driver integrity verification</li>
+          <li>Code-signing enforcement</li>
+          <li>Memory permission auditing</li>
+          <li>Manual syscall detection</li>
+          <li>Mapped driver interception</li>
+          <li>Unsigned code injection blocking</li>
+        </ul>
+      </div>
+      <div class="head-card reveal">
+        <div class="head-number">02</div>
+        <div class="head-icon">&#x1F9E0;</div>
+        <div class="head-title">Behavioral AI</div>
+        <div class="head-desc">Processes thousands of input samples per second to detect patterns no human can replicate — regardless of payload delivery.</div>
+        <ul class="head-features">
+          <li>Statistically impossible aim detection</li>
+          <li>Frame-perfect reaction time analysis</li>
+          <li>Micro-movement pattern recognition</li>
+          <li>Input cadence anomaly detection</li>
+          <li>Payload-agnostic classification</li>
+          <li>Real-time inference at &lt;2ms latency</li>
+        </ul>
+      </div>
+      <div class="head-card reveal">
+        <div class="head-number">03</div>
+        <div class="head-icon">&#x1F50D;</div>
+        <div class="head-title">Hardware Fingerprinting</div>
+        <div class="head-desc">Scans the PCIe bus, cross-references firmware signatures, and detects the memory access patterns that define DMA attacks.</div>
+        <ul class="head-features">
+          <li>Full PCIe device enumeration</li>
+          <li>Firmware signature cross-referencing</li>
+          <li>Known DMA board detection</li>
+          <li>Anomalous memory access monitoring</li>
+          <li>External read attack identification</li>
+          <li>Firmware spoof detection</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ARCHITECTURE -->
+  <section class="section" id="architecture">
+    <div class="section-header reveal">
+      <div class="section-label">Under the Hood</div>
+      <h2 class="section-title">System architecture</h2>
+      <p class="section-desc">Cerberus operates across three privilege layers with zero persistent background processes.</p>
+    </div>
+    <div class="arch-container reveal">
+      <div class="arch-diagram"><span class="dm">  GAME PROCESS</span>
+<span class="dm">  +---------------------------------------------------------------------------+</span>
+<span class="dm">  |</span>  <span class="bl">[User-mode Hook Layer]</span>    <span class="dm">---></span>    <span class="pr">Behavioral AI Engine</span>    <span class="dm">---></span>    <span class="gr">Verdict</span>  <span class="dm">|</span>
+<span class="dm">  |</span>       <span class="dm">|</span>                                    <span class="dm">|</span>                             <span class="dm">|</span>
+<span class="dm">  |</span>       <span class="dm">v</span>                                    <span class="dm">v</span>                             <span class="dm">|</span>
+<span class="dm">  |</span>  <span class="hl">[Kernel Integrity Monitor]</span>  <span class="dm"><---></span>  <span class="rd">[Hardware Fingerprint Scanner]</span>         <span class="dm">|</span>
+<span class="dm">  |</span>       <span class="dm">|</span>                                    <span class="dm">|</span>                             <span class="dm">|</span>
+<span class="dm">  |</span>       <span class="dm">v</span>                                    <span class="dm">v</span>                             <span class="dm">|</span>
+<span class="dm">  |</span>  <span class="dm">Driver Integrity DB</span>            <span class="dm">PCIe Device Manifest</span>                   <span class="dm">|</span>
+<span class="dm">  +---------------------------------------------------------------------------+</span>
+<span class="dm">                                      |</span>
+<span class="dm">                          </span><span class="gr">[Session ends -> Clean exit]</span></div>
+      <div class="arch-layers">
+        <div class="arch-layer">
+          <div class="arch-layer-name">Ring 3 — User Mode</div>
+          <p>Input sampling, behavioral analysis, AI inference engine. Lightweight hooks with zero impact on frame times.</p>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-layer-name">Ring 0 — Kernel Mode</div>
+          <p>Driver verification, code-signing enforcement, memory permission auditing. Loads on game launch, unloads on exit.</p>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-layer-name">Hardware Layer</div>
+          <p>PCIe bus enumeration, firmware validation, DMA pattern detection. Identifies rogue devices at the physical level.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- COMPARISON -->
+  <section class="section" id="compare">
+    <div class="section-header reveal">
+      <div class="section-label">Head to Head</div>
+      <h2 class="section-title">How Cerberus compares</h2>
+      <p class="section-desc">A direct comparison against the three largest anti-cheat solutions currently deployed in production.</p>
+    </div>
+    <div class="compare-table-wrap reveal">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Capability</th>
+            <th>EAC</th>
+            <th>BattlEye</th>
+            <th>Vanguard</th>
+            <th>Cerberus</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Kernel-level protection</td>
+            <td><span class="partial">~</span></td>
+            <td><span class="check">&#10003;</span></td>
+            <td><span class="check">&#10003;</span></td>
+            <td><span class="check">&#10003;</span></td>
+          </tr>
+          <tr>
+            <td>DMA attack detection</td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="partial">~</span></td>
+            <td><span class="check">&#10003;</span></td>
+          </tr>
+          <tr>
+            <td>Hardware fingerprinting</td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="check">&#10003;</span></td>
+          </tr>
+          <tr>
+            <td>Behavioral AI analysis</td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="partial">~</span></td>
+            <td><span class="partial">~</span></td>
+            <td><span class="check">&#10003;</span></td>
+          </tr>
+          <tr>
+            <td>Firmware spoof detection</td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="check">&#10003;</span></td>
+          </tr>
+          <tr>
+            <td>Zero telemetry</td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="check">&#10003;</span></td>
+          </tr>
+          <tr>
+            <td>Runtime-only (no always-on)</td>
+            <td><span class="check">&#10003;</span></td>
+            <td><span class="check">&#10003;</span></td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="check">&#10003;</span></td>
+          </tr>
+          <tr>
+            <td>External memory read detection</td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="cross">&#10005;</span></td>
+            <td><span class="partial">~</span></td>
+            <td><span class="check">&#10003;</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- INTEGRATION -->
+  <section class="section" id="integration">
+    <div class="section-header reveal">
+      <div class="section-label">Integration</div>
+      <h2 class="section-title">Four lines to protect your game</h2>
+      <p class="section-desc">Cerberus ships as a single SDK. Initialize, attach, and let the three heads handle the rest.</p>
+    </div>
+    <div class="code-section reveal">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dot code-dot-r"></div>
+          <div class="code-dot code-dot-y"></div>
+          <div class="code-dot code-dot-g"></div>
+          <div class="code-filename">main.cpp</div>
+        </div>
+        <div class="code-body">
+<span class="cm">// Initialize Cerberus anti-cheat</span>
+<span class="kw">#include</span> <span class="str">&lt;cerberus/sdk.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="tp">Cerberus</span>::<span class="fn">Config</span> cfg;
+    cfg.gameId    = <span class="str">"your-game-id"</span>;
+    cfg.apiKey    = <span class="str">"your-api-key"</span>;
+    cfg.mode      = <span class="tp">Cerberus</span>::<span class="fn">Mode</span>::<span class="hl">Production</span>;
+
+    <span class="cm">// Three heads activate on attach</span>
+    <span class="kw">auto</span> session = <span class="tp">Cerberus</span>::<span class="fn">Init</span>(cfg);
+    session.<span class="fn">Attach</span>();
+
+    <span class="cm">// Your game loop runs normally</span>
+    <span class="fn">RunGameLoop</span>();
+
+    <span class="cm">// Clean exit — no persistent processes</span>
+    session.<span class="fn">Detach</span>();
+    <span class="kw">return</span> <span class="hl">0</span>;
+}
+        </div>
+      </div>
+      <div class="code-info">
+        <h3>Drop-in SDK for any game engine</h3>
+        <p>Cerberus integrates with your existing build pipeline. No engine modifications, no custom shaders, no middleware dependencies. Just link the SDK and call <code>Attach()</code>.</p>
+        <ul class="code-info-features">
+          <li>Native C/C++ SDK with C# bindings</li>
+          <li>Unreal Engine plugin available</li>
+          <li>Unity package manager support</li>
+          <li>CMake, MSBuild, and Premake templates</li>
+          <li>Full debug + release configurations</li>
+          <li>Comprehensive logging and diagnostics</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- METRICS -->
+  <section class="section" id="metrics">
+    <div class="section-header reveal">
+      <div class="section-label">Performance</div>
+      <h2 class="section-title">Built for competitive framerates</h2>
+      <p class="section-desc">Cerberus was engineered to be invisible to performance. Every scan, every inference, every check — under budget.</p>
+    </div>
+    <div class="metrics-grid reveal">
+      <div class="metric-card">
+        <div class="metric-value">&lt;0.3%</div>
+        <div class="metric-label">CPU Overhead</div>
+        <div class="metric-sub">Avg across all layers</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">&lt;2ms</div>
+        <div class="metric-label">Scan Latency</div>
+        <div class="metric-sub">Per detection cycle</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">18MB</div>
+        <div class="metric-label">Memory Footprint</div>
+        <div class="metric-sub">Total runtime allocation</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">0</div>
+        <div class="metric-label">Frame Impact</div>
+        <div class="metric-sub">Measured at 240fps</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- TEAM -->
+  <section class="section" id="team">
+    <div class="team-banner reveal">
+      <div class="team-count">75+</div>
+      <div class="team-label">Engineers building the future of game security</div>
+      <div class="team-roles">
+        <span class="team-role">Kernel Engineers</span>
+        <span class="team-role">ML Researchers</span>
+        <span class="team-role">Threat Analysts</span>
+        <span class="team-role">Firmware Specialists</span>
+        <span class="team-role">Game Security Experts</span>
+        <span class="team-role">SDK Engineers</span>
+        <span class="team-role">QA & Red Team</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" id="access">
+    <h2 class="reveal">Ready to secure<br/>your <span>game?</span></h2>
+    <p class="reveal">Cerberus is currently in closed early access. Request access for your studio.</p>
+    <div class="cta-actions reveal">
+      <a href="mailto:cerberus@arsenalrx.dev" class="btn-primary">
+        Request Access
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="https://arsenalrx.github.io" class="btn-secondary">
+        Back to ArsenalRX
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </a>
+    </div>
+    <p class="cta-note">Cerberus is in active development. Features and specifications are subject to change.</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-brand">Cerbe<span>rus</span></div>
+    <p>Three heads. Three layers. Nothing gets past the gate.</p>
+    <p style="margin-top: 12px;">&copy; <span id="year"></span> <a href="https://arsenalrx.github.io">ArsenalRX</a>. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Scroll reveal
+    var reveals = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(function(el) { observer.observe(el); });
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var target = document.querySelector(this.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // Stagger threat cards and head cards
+    var grids = document.querySelectorAll('.threat-grid, .heads-grid, .metrics-grid');
+    grids.forEach(function(grid) {
+      var cards = grid.children;
+      var gridObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            for (var i = 0; i < cards.length; i++) {
+              (function(idx) {
+                setTimeout(function() { cards[idx].classList.add('visible'); }, idx * 120);
+              })(i);
+            }
+            gridObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      gridObserver.observe(grid);
+    });
+
+    // Nav background on scroll
+    window.addEventListener('scroll', function() {
+      var nav = document.querySelector('.nav');
+      if (window.scrollY > 50) {
+        nav.style.background = 'rgba(5,5,7,0.95)';
+        nav.style.borderBottomColor = 'rgba(255,255,255,0.08)';
+      } else {
+        nav.style.background = 'rgba(5,5,7,0.8)';
+        nav.style.borderBottomColor = 'rgba(255,255,255,0.06)';
+      }
+    }, { passive: true });
+  </script>
+
+</body>
+</html>
