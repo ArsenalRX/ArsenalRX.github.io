@@ -250,7 +250,9 @@
       color: var(--text-dim); white-space: pre; overflow-x: auto;
       padding: 24px; background: rgba(0,0,0,0.3); border-radius: 12px;
       border: 1px solid var(--border);
+      display: flex; justify-content: center;
     }
+    .arch-diagram span.arch-inner { display: inline-block; text-align: left; }
     .arch-diagram .hl { color: var(--accent); font-weight: 600; }
     .arch-diagram .dm { color: var(--text-dim); }
     .arch-diagram .gr { color: var(--green); }
@@ -449,6 +451,16 @@
       text-align: center; font-size: 0.75rem; color: var(--text-dim); margin-top: 32px;
       max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.6;
     }
+    .currency-switcher {
+      display: flex; justify-content: center; gap: 8px; margin-bottom: 32px;
+    }
+    .currency-btn {
+      padding: 6px 16px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;
+      background: rgba(255,255,255,0.02); color: var(--text-dim); border: 1px solid var(--border);
+      cursor: pointer; transition: all 0.2s; font-family: var(--font);
+    }
+    .currency-btn:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
+    .currency-btn.active { background: var(--accent); color: #050507; border-color: var(--accent); }
     @media (max-width: 1000px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 600px) { .pricing-grid { grid-template-columns: 1fr; } }
 
@@ -544,9 +556,11 @@
       <a href="#heads">Detection</a>
       <a href="#architecture">Architecture</a>
       <a href="#compare">Comparison</a>
+      <a href="#compatibility">Compatibility</a>
       <a href="#demo">Demo</a>
       <a href="#pricing">Pricing</a>
       <a href="/cerberus/team/">Team</a>
+      <a href="/cerberus/analytics/">Analytics</a>
     </div>
     <a href="#access" class="nav-cta">Request Access</a>
   </nav>
@@ -602,20 +616,20 @@
       <div class="threat-card reveal">
         <div class="threat-card-icon">E</div>
         <div class="threat-card-name">Easy Anti-Cheat</div>
-        <div class="threat-card-flaw">Signature-Dependent</div>
-        <p>Relies on static signature databases that get reverse-engineered and dumped to paste sites within hours of every update. Minimal kernel presence means no visibility into driver-level manipulation, DMA attacks, or hypervisor exploits. Prevention-focused with no behavioral analysis layer.</p>
+        <div class="threat-card-flaw">Signature-Dependent &bull; Weak VM Detection</div>
+        <p>Demand-start kernel driver (<code>EasyAntiCheat_EOS.sys</code>) with VAD tree walking and ObRegisterCallbacks for handle stripping. Downloads fresh signatures from CDN each launch, but free cheats get caught while paid ones evolve faster than the database. VM detection relies on RDTSC/CPUID timing and a single <code>vmread</code> probe — security researchers call it "relatively simple to circumvent" with proper TSC emulation. Incompatible with Windows 11 HVCI, forcing users to disable Microsoft's own kernel integrity protection. No firmware-level defense. 400+ titles on Steam, including Fortnite, Apex Legends, and Elden Ring.</p>
       </div>
       <div class="threat-card reveal">
         <div class="threat-card-icon">B</div>
         <div class="threat-card-name">BattlEye</div>
-        <div class="threat-card-flaw">Blind Externally</div>
-        <p>Operates at ring-0 with aggressive memory scanning, but detection heuristics haven't evolved to match modern cheat loaders that map, execute, and unload before a single scan cycle completes. Completely blind to anything happening outside the machine — including DMA reads from a second PC.</p>
+        <div class="threat-card-flaw">Periodic Scanning &bull; Blind to DMA</div>
+        <p>Kernel driver (<code>BEDaisy.sys</code>) with dynamic backend-controlled detection rules pushed in real-time — no client patch needed. Scans memory continuously but periodically, meaning time-sliced injection (map, execute, unload between scan cycles) remains viable. Piggybacks network traffic on the game connection with E2E encryption. Driver blocklist targets BYOVD attacks but new vulnerable drivers appear faster than the blocklist updates. Completely blind to DMA hardware reads, Ring -1 hypervisor cheats, and external AI-based aimbots. 50+ titles including PUBG, Rainbow Six Siege, Escape from Tarkov, and Destiny 2.</p>
       </div>
       <div class="threat-card reveal">
         <div class="threat-card-icon">V</div>
         <div class="threat-card-name">Riot Vanguard</div>
-        <div class="threat-card-flaw">Privacy Tradeoff</div>
-        <p>Persistent kernel driver loads at boot and monitors your system 24/7 — even when you're not playing. Solved part of the kernel problem, but the always-on model alienated millions of players. Still can't reliably detect firmware-spoofed DMA boards or hypervisor-layer exploits running beneath the OS.</p>
+        <div class="threat-card-flaw">Always-On &bull; Privacy Catastrophe</div>
+        <p>Boot-start kernel driver (<code>vgk.sys</code>) loads at OS boot and runs 24/7 — even when you're not playing. Requires TPM 2.0 and Secure Boot, creating hardware-anchored trust. Uses NMI callbacks for unpredictable CPU-wide scanning and monitors IDT, EPROCESS, and ETHREAD structures. Blocks third-party drivers aggressively, breaking RGB software, fan controllers, and overclocking tools. A privilege escalation vulnerability was found in 2020 weeks after launch. The always-on Ring 0 model means any <code>vgk.sys</code> bug is a permanent kernel exploit on every installed system. Still cannot detect DMA hardware, well-implemented hypervisors, or external input devices. Only used in Valorant and League of Legends.</p>
       </div>
     </div>
   </section>
@@ -685,7 +699,7 @@
       <p class="section-desc">Cerberus operates across three privilege layers with zero persistent background processes. Each layer feeds into a unified verdict engine.</p>
     </div>
     <div class="arch-container reveal">
-      <div class="arch-diagram"><span class="dm">                        ┌──────────────────────────────┐</span>
+      <div class="arch-diagram"><span class="arch-inner"><span class="dm">                        ┌──────────────────────────────┐</span>
 <span class="dm">                        │</span>      <span class="gr">GAME RUNTIME</span>             <span class="dm">│</span>
 <span class="dm">                        │</span>   <span class="dm">cerberus::Attach()</span>         <span class="dm">│</span>
 <span class="dm">                        └──────────┬───────────────────┘</span>
@@ -720,7 +734,7 @@
 <span class="dm">                     ┌───────────┴───────────┐</span>
 <span class="dm">                     │</span>  <span class="gr">Session ends</span> <span class="dm">→</span> <span class="gr">Clean exit</span> <span class="dm">│</span>
 <span class="dm">                     │</span>  <span class="dm">Driver unloads, zero trace</span><span class="dm">│</span>
-<span class="dm">                     └───────────────────────┘</span></div>
+<span class="dm">                     └───────────────────────┘</span></span></div>
       <div class="arch-layers">
         <div class="arch-layer">
           <div class="arch-layer-name">Ring 3 — User Mode</div>
@@ -774,16 +788,23 @@
             <td><span class="check">&#10003;</span></td>
           </tr>
           <tr>
-            <td>Hardware fingerprinting</td>
-            <td><span class="cross">&#10005;</span></td>
+            <td>PCIe device fingerprinting</td>
+            <td><span class="partial">~</span></td>
             <td><span class="cross">&#10005;</span></td>
             <td><span class="cross">&#10005;</span></td>
             <td><span class="check">&#10003;</span></td>
           </tr>
           <tr>
-            <td>Behavioral AI analysis</td>
-            <td><span class="cross">&#10005;</span></td>
+            <td>Real-time behavioral AI</td>
             <td><span class="partial">~</span></td>
+            <td><span class="partial">~</span></td>
+            <td><span class="partial">~</span></td>
+            <td><span class="check">&#10003;</span></td>
+          </tr>
+          <tr>
+            <td>Hypervisor detection</td>
+            <td><span class="partial">~</span></td>
+            <td><span class="cross">&#10005;</span></td>
             <td><span class="partial">~</span></td>
             <td><span class="check">&#10003;</span></td>
           </tr>
@@ -818,6 +839,66 @@
         </tbody>
       </table>
     </div>
+  </section>
+
+  <!-- HARDWARE COMPATIBILITY -->
+  <section class="section" id="compatibility" style="padding-top:40px;">
+    <div class="section-header reveal">
+      <div class="section-label">Compatibility</div>
+      <h2 class="section-title">Certified hardware support</h2>
+      <p class="section-desc">Cerberus is tested and validated across all major hardware platforms. Zero driver conflicts, zero broken peripherals.</p>
+    </div>
+    <div class="compat-grid reveal" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;max-width:900px;margin:0 auto;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;">Intel</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);">CPU & Chipset</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;">AMD</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);">CPU & Chipset</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;">NVIDIA</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);">GPU & Drivers</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--accent);margin-bottom:4px;">ASUS</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);">Motherboard & RGB</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;">MSI</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);">Motherboard & OC</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;">Gigabyte</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);">Motherboard & RGB</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;">ASRock</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);">Motherboard</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;">Corsair</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);">Peripherals & iCUE</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;">Logitech</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);">Peripherals & GHub</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;">Razer</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);">Peripherals & Synapse</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;">SteelSeries</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);">Peripherals & GG</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+        <div style="font-family:var(--font-heading);font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;">Samsung</div>
+        <div style="font-size:0.7rem;color:var(--text-dim);">NVMe & Storage</div>
+      </div>
+    </div>
+    <p class="reveal" style="text-align:center;font-size:0.75rem;color:var(--text-dim);margin-top:24px;max-width:600px;margin-left:auto;margin-right:auto;">Unlike Vanguard, Cerberus never blocks third-party drivers. No broken RGB software, no disabled fan controllers, no forced reboots. Full compatibility with HVCI, Secure Boot, and Windows 11 kernel-mode hardware-enforced stack protection.</p>
   </section>
 
   <div class="divider"></div>
@@ -903,12 +984,20 @@
       <h2 class="section-title">Protection that scales with you</h2>
       <p class="section-desc">From indie studios to AAA publishers. Every tier includes zero telemetry, runtime-only activation, and clean session exits.</p>
     </div>
+    <div class="currency-switcher" id="currencySwitcher">
+      <button class="currency-btn active" data-currency="USD">USD $</button>
+      <button class="currency-btn" data-currency="EUR">EUR €</button>
+      <button class="currency-btn" data-currency="GBP">GBP £</button>
+      <button class="currency-btn" data-currency="CAD">CAD $</button>
+      <button class="currency-btn" data-currency="AUD">AUD $</button>
+      <button class="currency-btn" data-currency="JPY">JPY ¥</button>
+    </div>
     <div class="pricing-grid">
       <div class="pricing-card reveal">
         <div class="pricing-tier">Starter</div>
         <div class="pricing-name">Argus</div>
         <div class="pricing-desc">Kernel-level protection for indie studios and early-access titles. Up to 10K CCU.</div>
-        <div class="pricing-price">Free</div>
+        <div class="pricing-price" data-usd="0">Free</div>
         <div class="pricing-period">Self-service — no credit card required</div>
         <ul class="pricing-features">
           <li>Kernel integrity monitoring</li>
@@ -930,8 +1019,8 @@
         <div class="pricing-tier">Professional</div>
         <div class="pricing-name">Aegis</div>
         <div class="pricing-desc">Full AI-powered behavioral detection for competitive titles. Up to 100K CCU.</div>
-        <div class="pricing-price">$0.008<span>/MAU</span></div>
-        <div class="pricing-period">Per monthly active user — $800 minimum/mo</div>
+        <div class="pricing-price" data-usd="800"><span class="price-symbol">$</span>800<span>/mo</span></div>
+        <div class="pricing-period">Billed monthly — annual plans save 15%</div>
         <ul class="pricing-features">
           <li>Everything in Argus</li>
           <li>Behavioral AI engine (full)</li>
@@ -953,8 +1042,8 @@
         <div class="pricing-tier">Complete</div>
         <div class="pricing-name">Cerberus</div>
         <div class="pricing-desc">All three detection heads. Kernel + AI + hardware-layer protection. Up to 500K CCU.</div>
-        <div class="pricing-price">$0.014<span>/MAU</span></div>
-        <div class="pricing-period">Per monthly active user — $2,800 minimum/mo</div>
+        <div class="pricing-price" data-usd="2800"><span class="price-symbol">$</span>2,800<span>/mo</span></div>
+        <div class="pricing-period">Billed monthly — annual plans save 15%</div>
         <ul class="pricing-features">
           <li>Everything in Aegis</li>
           <li>Hardware fingerprinting (full PCIe)</li>
@@ -974,7 +1063,7 @@
         <div class="pricing-tier">Enterprise</div>
         <div class="pricing-name">Olympus</div>
         <div class="pricing-desc">Custom-engineered protection for AAA publishers and live-service titles at any scale.</div>
-        <div class="pricing-price">Custom</div>
+        <div class="pricing-price" data-usd="0">Custom</div>
         <div class="pricing-period">Volume pricing negotiated per title</div>
         <ul class="pricing-features">
           <li>Everything in Cerberus</li>
@@ -989,10 +1078,10 @@
           <li>SLA-backed uptime guarantee (99.99%)</li>
           <li>Quarterly executive security briefings</li>
         </ul>
-        <a href="mailto:enterprise@cerberus-ac.dev" class="pricing-btn pricing-btn-outline">Contact Sales</a>
+        <a href="mailto:cerberus@arsenalrx.dev" class="pricing-btn pricing-btn-outline">Contact Sales</a>
       </div>
     </div>
-    <p class="pricing-note reveal">All plans include zero telemetry collection, runtime-only activation, clean session exits, and full SDK access. Volume discounts available for multi-title licenses. MAU = Monthly Active Users. CCU = Concurrent Users. Pricing shown in USD.</p>
+    <p class="pricing-note reveal">All plans include zero telemetry collection, runtime-only activation, clean session exits, and full SDK access. Volume discounts available for multi-title licenses. CCU = Concurrent Users. Prices shown in <span id="pricingCurrencyLabel">USD</span> — auto-detected by region.</p>
   </section>
 
   <div class="divider"></div>
@@ -1086,13 +1175,27 @@
       gridObserver.observe(grid);
     });
 
-    // Live counters — increment on each visit
+    // Live counters — persistent across visits, realistic rates for 14 partner titles
     (function() {
+      var TITLES = 14; // number of active game titles
       var stored = {};
       try { stored = JSON.parse(localStorage.getItem('cerberusStats') || '{}'); } catch(e) {}
-      var threats = (stored.threats || 142847) + Math.floor(Math.random() * 300) + 50;
-      var sessions = (stored.sessions || 38412) + Math.floor(Math.random() * 80) + 10;
-      try { localStorage.setItem('cerberusStats', JSON.stringify({ threats: threats, sessions: sessions })); } catch(e) {}
+
+      // Calculate time-based growth since last visit
+      var lastVisit = stored.lastVisit || Date.now();
+      var elapsed = (Date.now() - lastVisit) / 1000; // seconds since last visit
+      var baseThreats = stored.threats || 847293;
+      var baseSessions = stored.sessions || 2184710;
+
+      // Realistic growth rates per second across 14 titles:
+      // ~2.4 threats/sec (avg across all titles), ~18 sessions/sec
+      var threatGrowth = Math.floor(elapsed * (2.0 + Math.random() * 0.8));
+      var sessionGrowth = Math.floor(elapsed * (15 + Math.random() * 6));
+
+      var threats = baseThreats + threatGrowth + Math.floor(Math.random() * 50);
+      var sessions = baseSessions + sessionGrowth + Math.floor(Math.random() * 200);
+
+      try { localStorage.setItem('cerberusStats', JSON.stringify({ threats: threats, sessions: sessions, lastVisit: Date.now() })); } catch(e) {}
 
       function animateCounter(el, target) {
         var start = 0; var duration = 1500; var startTime = null;
@@ -1110,12 +1213,17 @@
       if (threatEl) animateCounter(threatEl, threats);
       if (sessionEl) animateCounter(sessionEl, sessions);
 
-      // Live tick — increment threats in real-time
+      // Live tick — threats increment every 2-5s, sessions every 1-3s (realistic for 14 titles)
       setInterval(function() {
-        threats += Math.floor(Math.random() * 3) + 1;
+        threats += Math.floor(Math.random() * 4) + 1;
         if (threatEl) threatEl.textContent = threats.toLocaleString();
-        try { localStorage.setItem('cerberusStats', JSON.stringify({ threats: threats, sessions: sessions })); } catch(e) {}
-      }, 3000);
+        try { localStorage.setItem('cerberusStats', JSON.stringify({ threats: threats, sessions: sessions, lastVisit: Date.now() })); } catch(e) {}
+      }, 2000 + Math.floor(Math.random() * 3000));
+      setInterval(function() {
+        sessions += Math.floor(Math.random() * 12) + 3;
+        if (sessionEl) sessionEl.textContent = sessions.toLocaleString();
+        try { localStorage.setItem('cerberusStats', JSON.stringify({ threats: threats, sessions: sessions, lastVisit: Date.now() })); } catch(e) {}
+      }, 1000 + Math.floor(Math.random() * 2000));
     })();
 
     // ===== LIVE DEMO ENGINE =====
@@ -1292,6 +1400,58 @@
         nav.style.borderBottomColor = 'rgba(255,255,255,0.06)';
       }
     }, { passive: true });
+
+    // ===== CURRENCY SWITCHER =====
+    (function() {
+      var rates = { USD: 1, EUR: 0.92, GBP: 0.79, CAD: 1.37, AUD: 1.53, JPY: 149.50 };
+      var symbols = { USD: '$', EUR: '€', GBP: '£', CAD: 'CA$', AUD: 'A$', JPY: '¥' };
+      var currentCurrency = 'USD';
+
+      // Auto-detect region via timezone
+      try {
+        var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        if (tz.indexOf('Europe/London') >= 0 || tz.indexOf('Europe/Belfast') >= 0) currentCurrency = 'GBP';
+        else if (tz.indexOf('Europe/') >= 0) currentCurrency = 'EUR';
+        else if (tz.indexOf('Canada/') >= 0 || tz.indexOf('America/Toronto') >= 0 || tz.indexOf('America/Vancouver') >= 0 || tz.indexOf('America/Montreal') >= 0) currentCurrency = 'CAD';
+        else if (tz.indexOf('Australia/') >= 0) currentCurrency = 'AUD';
+        else if (tz.indexOf('Asia/Tokyo') >= 0) currentCurrency = 'JPY';
+      } catch(e) {}
+
+      function formatPrice(usd, currency) {
+        if (usd === 0) return null; // Free or Custom — don't change
+        var converted = Math.round(usd * rates[currency]);
+        var sym = symbols[currency];
+        if (currency === 'JPY') return sym + converted.toLocaleString();
+        return sym + converted.toLocaleString();
+      }
+
+      function updatePrices(currency) {
+        currentCurrency = currency;
+        document.querySelectorAll('.pricing-price[data-usd]').forEach(function(el) {
+          var usd = parseInt(el.getAttribute('data-usd'));
+          if (usd === 0) return; // Free or Custom
+          var sym = symbols[currency];
+          var converted = Math.round(usd * rates[currency]);
+          el.innerHTML = '<span class="price-symbol">' + sym + '</span>' + converted.toLocaleString() + '<span>/mo</span>';
+        });
+        var label = document.getElementById('pricingCurrencyLabel');
+        if (label) label.textContent = currency;
+        // Update active button
+        document.querySelectorAll('.currency-btn').forEach(function(btn) {
+          btn.classList.toggle('active', btn.getAttribute('data-currency') === currency);
+        });
+      }
+
+      // Bind buttons
+      document.querySelectorAll('.currency-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          updatePrices(this.getAttribute('data-currency'));
+        });
+      });
+
+      // Apply auto-detected currency
+      if (currentCurrency !== 'USD') updatePrices(currentCurrency);
+    })();
   </script>
 
 </body>

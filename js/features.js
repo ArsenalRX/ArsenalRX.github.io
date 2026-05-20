@@ -281,7 +281,7 @@
     { name: 'Skills',   section: 'skills',    radius: 180, speed: 0.007, size: 14, colors: ['#2299ff','#00cc66'], angle: Math.PI * 0.9 },
     { name: 'Terminal', section: 'terminal',  radius: 230, speed: 0.005, size: 10, colors: ['#ff3333','#992222'], angle: Math.PI * 1.3 },
     { name: 'Contact',  section: 'contact',   radius: 290, speed: 0.003, size: 18, colors: ['#cc8855','#aa6633'], angle: Math.PI * 1.7 },
-    { name: 'GitHub',   section: '__github',  radius: 340, speed: 0.002, size: 15, colors: ['#ddcc66','#bbaa44'], angle: Math.PI * 0.2, hasRings: true },
+    { name: 'Blog',     section: 'blog',      radius: 340, speed: 0.002, size: 15, colors: ['#ddcc66','#bbaa44'], angle: Math.PI * 0.2, hasRings: true },
   ];
 
   function resizeOrbital() {
@@ -392,15 +392,11 @@
       if (orbitalHover >= 0) {
         var p = planets[orbitalHover];
         closeOrbitalMap();
-        if (p.section === '__github') {
-          window.open('https://github.com/ArsenalRX', '_blank');
-        } else {
           if (ARX.triggerWarp) ARX.triggerWarp(p.section);
           setTimeout(function() {
             var el = document.getElementById(p.section);
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }, 600);
-        }
       } else { closeOrbitalMap(); }
     });
   }

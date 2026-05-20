@@ -121,7 +121,7 @@
       timeline: 'Started Oct 2025 \u2014 Active',
       preview: 'img/lightkeeper.png',
       details: '<h4>Technical Breakdown</h4><p>Built with Python backend and Electron frontend. Parses USCG Light List data, renders interactive Leaflet maps, and uses optimization algorithms to generate efficient multi-day route plans. Handles offline-first data with SQLite storage.</p>',
-      link: 'https://github.com/ArsenalRX/lightkeeper-releases/releases/tag/v0.9.0',
+      link: '',
     },
     'Imperium': {
       desc: 'A Windows hardware identity spoofer with a modern WPF interface and kernel-mode driver. Randomizes hardware fingerprints to make your PC appear as a different machine.',
@@ -165,7 +165,7 @@
       timeline: 'Started Oct 2025 \u2014 Active',
       preview: 'img/codex.png',
       details: '<h4>Technical Breakdown</h4><p>Built with React and Tauri 2 (Rust). Features a local SQLite database with 2,000+ SRD articles, WebSocket-based real-time multiplayer, and full offline support. No account required \u2014 all data stays on your machine.</p>',
-      link: 'https://github.com/nisakson2000/dnd-tracker/releases/tag/v0.8.7',
+      link: '',
     },
     'Ghosted': {
       desc: 'An app to track your personal data across 100s of data broker sites and remove it.',
@@ -195,7 +195,7 @@
       timeline: 'Released Oct 2025',
       preview: 'img/voxmorph.png',
       details: '<h4>Technical Breakdown</h4><p>Uses speech recognition, neural machine translation, and text-to-speech synthesis in a Python pipeline. Supports 15+ languages with low-latency processing. Built as a Jupyter notebook for easy experimentation and deployment.</p>',
-      link: 'https://github.com/ArsenalRX/voxmorph',
+      link: '',
     },
   };
 
