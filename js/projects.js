@@ -45,7 +45,7 @@
   // ========== FETCH GITHUB STATS ==========
   (function() {
     var projectEl = document.getElementById('statProjects');
-    var commitEl = document.getElementById('statCommits');
+    var contribEl = document.getElementById('statContributions');
 
     function loadCache() {
       try { return JSON.parse(localStorage.getItem('ghStats') || '{}'); } catch (e) { return {}; }
@@ -54,49 +54,35 @@
     var cached = loadCache();
     if (cached.ts && Date.now() - cached.ts < ARX.GITHUB_CACHE_TTL) {
       if (projectEl) animateCount(projectEl, cached.repos);
-      if (commitEl) animateCount(commitEl, cached.commits);
+      if (contribEl) animateCount(contribEl, cached.contributions);
       return;
     }
 
-    fetch('https://api.github.com/users/ArsenalRX/repos?per_page=100&type=owner').then(function(reposRes) {
-      var remaining = reposRes.headers.get('X-RateLimit-Remaining');
-      if (remaining !== null && parseInt(remaining, 10) < 5) {
-        if (cached.repos) {
-          if (projectEl) animateCount(projectEl, cached.repos);
-          if (commitEl) animateCount(commitEl, cached.commits);
-          return Promise.reject('rate-limited');
-        }
-      }
-      if (!reposRes.ok) throw new Error('HTTP ' + reposRes.status);
-      return reposRes.json();
+    // Fetch repo count
+    fetch('https://api.github.com/users/ArsenalRX/repos?per_page=100&type=owner').then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
     }).then(function(repos) {
       if (!Array.isArray(repos)) throw new Error('bad response');
       if (projectEl) animateCount(projectEl, repos.length);
 
-      return Promise.all(repos.map(function(repo) {
-        return fetch('https://api.github.com/repos/ArsenalRX/' + repo.name + '/commits?per_page=1').then(function(r) {
-          if (!r.ok) return 0;
-          var link = r.headers.get('Link');
-          if (link) {
-            var match = link.match(/page=(\d+)>; rel="last"/);
-            if (match) return parseInt(match[1], 10);
-          }
-          return r.json().then(function(data) { return Array.isArray(data) ? data.length : 0; });
-        }).catch(function() { return 0; });
-      })).then(function(counts) {
-        var total = counts.reduce(function(s, n) { return s + n; }, 0);
-        if (commitEl) animateCount(commitEl, total || 0);
-        try { localStorage.setItem('ghStats', JSON.stringify({ repos: repos.length, commits: total || 0, ts: Date.now() })); } catch (e) {}
+      // Fetch contribution count from GitHub profile page
+      return fetch('https://github-contributions-api.jogruber.de/v4/ArsenalRX?y=last').then(function(res) {
+        if (!res.ok) throw new Error('contributions API failed');
+        return res.json();
+      }).then(function(data) {
+        var total = data.total && data.total.lastYear ? data.total.lastYear : 0;
+        if (contribEl) animateCount(contribEl, total);
+        try { localStorage.setItem('ghStats', JSON.stringify({ repos: repos.length, contributions: total, ts: Date.now() })); } catch (e) {}
       });
-    }).catch(function(err) {
-      if (err === 'rate-limited') return;
+    }).catch(function() {
       var stale = loadCache();
       if (stale.repos) {
         if (projectEl) animateCount(projectEl, stale.repos);
-        if (commitEl) animateCount(commitEl, stale.commits);
+        if (contribEl) animateCount(contribEl, stale.contributions || 0);
       } else {
-        if (projectEl) { projectEl.textContent = '?'; projectEl.title = 'GitHub API unavailable'; }
-        if (commitEl) { commitEl.textContent = '?'; commitEl.title = 'GitHub API unavailable'; }
+        if (projectEl) { projectEl.textContent = '?'; }
+        if (contribEl) { contribEl.textContent = '?'; }
       }
     });
   })();

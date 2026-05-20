@@ -457,15 +457,7 @@ strong { color: var(--text-bright); font-weight: 600; }
   .cyber-focus-cards { grid-template-columns: 1fr; }
 }
 
-/* ========== AUTH BUTTON ========== */
-.nav-auth-btn {
-  background: none; border: 1px solid var(--border);
-  color: var(--text-dim); cursor: pointer; padding: 6px;
-  border-radius: 8px; display: flex; align-items: center;
-  transition: all var(--transition);
-}
-.nav-auth-btn:hover { color: var(--accent); border-color: var(--border-hover); }
-.nav-auth-btn.authenticated { color: var(--accent); border-color: var(--accent); }
+
 
 /* ========== BLOG CARDS ========== */
 .blog-card {
