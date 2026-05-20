@@ -34,6 +34,9 @@
   <!-- Dot Grid Overlay -->
   <div class="dot-grid"></div>
 
+  <!-- Cursor Glow -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
   <!-- Back to Top -->
   <button class="top-btn" id="topBtn" aria-label="Back to top">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
@@ -99,9 +102,14 @@
   <!-- ========== NIGHTREIGN BANNER ========== -->
   <section class="nightreign-banner reveal" id="nightreign">
     <div class="nightreign-content">
-      <div class="nightreign-badge">IN DEVELOPMENT</div>
-      <h2 class="nightreign-title">Project <span class="accent">NightReign</span></h2>
-      <p class="nightreign-subtitle">My biggest project to date.</p>
+      <div class="nightreign-badge">COMING SOON</div>
+      <h2 class="nightreign-title">Night<span class="accent">Reign</span></h2>
+      <p class="nightreign-subtitle">A modular offensive security framework built for penetration testing, red team operations, and security research. Custom C2 infrastructure, payload generation, and post-exploitation — all from one unified platform.</p>
+      <div class="nightreign-tags">
+        <span class="nightreign-tag">C2 Framework</span>
+        <span class="nightreign-tag">Red Team</span>
+        <span class="nightreign-tag">Post-Exploitation</span>
+      </div>
       <div class="nightreign-line"></div>
     </div>
   </section>
@@ -448,6 +456,7 @@
       'js/projects.js',
       'js/blog.js',
       'js/contact.js',
+      'js/animations.js',
       'js/init.js'
     ];
     jsFiles.forEach(function(file) {
