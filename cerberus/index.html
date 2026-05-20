@@ -296,47 +296,73 @@
     .cross { color: var(--red); opacity: 0.5; }
     .partial { color: #e8a020; opacity: 0.7; }
 
-    /* ===== CODE BLOCK ===== */
-    .code-section {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start;
-    }
-    .code-block {
+    /* ===== LIVE DEMO ===== */
+    .demo-container {
       background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
       overflow: hidden;
     }
-    .code-header {
-      padding: 12px 20px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 8px;
+    .demo-header {
+      padding: 14px 24px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
       background: rgba(255,255,255,0.01);
     }
-    .code-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .code-dot-r { background: var(--red); opacity: 0.6; }
-    .code-dot-y { background: #e8a020; opacity: 0.6; }
-    .code-dot-g { background: var(--green); opacity: 0.6; }
-    .code-filename {
+    .demo-dots { display: flex; gap: 6px; }
+    .demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .demo-dot-r { background: #e04050; opacity: 0.7; }
+    .demo-dot-y { background: #e8a020; opacity: 0.7; }
+    .demo-dot-g { background: #30c860; opacity: 0.7; }
+    .demo-title-bar {
       font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim);
-      margin-left: auto;
+      margin-left: auto; display: flex; align-items: center; gap: 8px;
     }
-    .code-body {
-      padding: 20px; font-family: var(--font-mono); font-size: 0.78rem;
-      line-height: 1.8; color: var(--text-dim); overflow-x: auto;
+    .demo-live-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #30c860;
+      animation: pulse-dot 1.5s ease-in-out infinite;
     }
-    .code-body .kw { color: var(--purple); }
-    .code-body .fn { color: var(--blue); }
-    .code-body .str { color: var(--green); }
-    .code-body .cm { color: #4a4e5a; font-style: italic; }
-    .code-body .tp { color: var(--accent); }
-    .code-info { display: flex; flex-direction: column; justify-content: center; }
-    .code-info h3 {
-      font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700;
-      color: var(--text-bright); margin-bottom: 16px; letter-spacing: -0.5px;
+    .demo-body {
+      padding: 0; height: 420px; display: flex; flex-direction: column;
     }
-    .code-info p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 16px; }
-    .code-info-features { list-style: none; }
-    .code-info-features li {
-      font-size: 0.85rem; color: var(--text); padding: 8px 0; display: flex; align-items: center; gap: 10px;
+    .demo-status-bar {
+      padding: 12px 24px; border-bottom: 1px solid var(--border);
+      display: flex; gap: 24px; flex-wrap: wrap; align-items: center;
+      font-family: var(--font-mono); font-size: 0.72rem;
     }
-    .code-info-features li::before { content: '\25B8'; color: var(--accent); }
+    .demo-status-item { display: flex; align-items: center; gap: 6px; color: var(--text-dim); }
+    .demo-status-val { color: var(--text-bright); font-weight: 600; }
+    .demo-status-ok { color: var(--green); }
+    .demo-status-warn { color: var(--accent); }
+    .demo-status-alert { color: var(--red); }
+    .demo-terminal {
+      flex: 1; overflow-y: auto; padding: 16px 24px;
+      font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.8;
+      background: rgba(0,0,0,0.2);
+    }
+    .demo-terminal::-webkit-scrollbar { width: 4px; }
+    .demo-terminal::-webkit-scrollbar-track { background: transparent; }
+    .demo-terminal::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .demo-line { opacity: 0; animation: demoFadeIn 0.3s ease forwards; }
+    @keyframes demoFadeIn { to { opacity: 1; } }
+    .demo-line .ts { color: #4a4e5a; }
+    .demo-line .ok { color: var(--green); }
+    .demo-line .warn { color: var(--accent); }
+    .demo-line .err { color: var(--red); font-weight: 600; }
+    .demo-line .info { color: var(--blue); }
+    .demo-line .dim { color: var(--text-dim); }
+    .demo-line .hl { color: var(--accent); font-weight: 600; }
+    .demo-controls {
+      padding: 14px 24px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .demo-btn {
+      padding: 8px 20px; border-radius: 8px; font-size: 0.78rem; font-weight: 600;
+      font-family: var(--font-mono); cursor: pointer; transition: all 0.2s;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.02); color: var(--text);
+    }
+    .demo-btn:hover { border-color: rgba(232,160,32,0.3); color: var(--accent); }
+    .demo-btn-run { background: var(--accent); color: #050507; border-color: var(--accent); }
+    .demo-btn-run:hover { background: #d09018; border-color: #d09018; color: #050507; }
+    .demo-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .demo-scenario-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim); margin-left: auto; }
 
     /* ===== METRICS ===== */
     .metrics-grid {
@@ -417,7 +443,6 @@
     /* ===== RESPONSIVE ===== */
     @media (max-width: 900px) {
       .threat-grid, .heads-grid, .arch-layers { grid-template-columns: 1fr; }
-      .code-section { grid-template-columns: 1fr; }
       .metrics-grid { grid-template-columns: repeat(2, 1fr); }
       .hero-stats { gap: 32px; flex-wrap: wrap; }
       .nav-links { display: none; }
@@ -447,6 +472,7 @@
       <a href="#heads">Detection</a>
       <a href="#architecture">Architecture</a>
       <a href="#compare">Comparison</a>
+      <a href="#demo">Demo</a>
       <a href="#metrics">Metrics</a>
       <a href="/cerberus/team/">Team</a>
     </div>
@@ -724,6 +750,47 @@
 
   <div class="divider"></div>
 
+  <!-- LIVE DEMO -->
+  <section class="section" id="demo">
+    <div class="section-header reveal">
+      <div class="section-label">Live Demo</div>
+      <h2 class="section-title">Watch Cerberus in action</h2>
+      <p class="section-desc">Simulated detection scenarios running against real cheat signatures. Select a scenario and watch the three heads respond in real time.</p>
+    </div>
+    <div class="demo-container reveal">
+      <div class="demo-header">
+        <div class="demo-dots">
+          <div class="demo-dot demo-dot-r"></div>
+          <div class="demo-dot demo-dot-y"></div>
+          <div class="demo-dot demo-dot-g"></div>
+        </div>
+        <div class="demo-title-bar">
+          <div class="demo-live-dot"></div>
+          cerberus v0.4.2-dev — session monitor
+        </div>
+      </div>
+      <div class="demo-body">
+        <div class="demo-status-bar" id="demoStatus">
+          <div class="demo-status-item">KERNEL <span class="demo-status-val demo-status-ok" id="demoKernel">ACTIVE</span></div>
+          <div class="demo-status-item">AI ENGINE <span class="demo-status-val demo-status-ok" id="demoAI">IDLE</span></div>
+          <div class="demo-status-item">HW SCAN <span class="demo-status-val demo-status-ok" id="demoHW">CLEAR</span></div>
+          <div class="demo-status-item">VERDICT <span class="demo-status-val" id="demoVerdict">---</span></div>
+          <div class="demo-status-item">LATENCY <span class="demo-status-val" id="demoLatency">0.0ms</span></div>
+        </div>
+        <div class="demo-terminal" id="demoTerminal"></div>
+      </div>
+      <div class="demo-controls">
+        <button class="demo-btn demo-btn-run" id="demoBtnDMA">DMA Attack</button>
+        <button class="demo-btn" id="demoBtnAimbot">Aimbot Inject</button>
+        <button class="demo-btn" id="demoBtnDriver">Mapped Driver</button>
+        <button class="demo-btn" id="demoBtnClean">Clean Session</button>
+        <span class="demo-scenario-label" id="demoScenarioLabel">Select a scenario</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
   <!-- METRICS -->
   <section class="section" id="metrics">
     <div class="section-header reveal">
@@ -771,6 +838,10 @@
         <span class="team-role">SDK Engineers</span>
         <span class="team-role">QA & Red Team</span>
       </div>
+      <a href="/cerberus/team/" class="btn-primary" style="margin-top:28px;display:inline-flex;">
+        Meet the Team
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
     </div>
   </section>
 
@@ -872,6 +943,169 @@
         if (threatEl) threatEl.textContent = threats.toLocaleString();
         try { localStorage.setItem('cerberusStats', JSON.stringify({ threats: threats, sessions: sessions })); } catch(e) {}
       }, 3000);
+    })();
+
+    // ===== LIVE DEMO ENGINE =====
+    (function() {
+      var terminal = document.getElementById('demoTerminal');
+      var kernelEl = document.getElementById('demoKernel');
+      var aiEl = document.getElementById('demoAI');
+      var hwEl = document.getElementById('demoHW');
+      var verdictEl = document.getElementById('demoVerdict');
+      var latencyEl = document.getElementById('demoLatency');
+      var labelEl = document.getElementById('demoScenarioLabel');
+      var running = false;
+
+      function ts() {
+        var d = new Date();
+        return d.toTimeString().split(' ')[0] + '.' + String(d.getMilliseconds()).padStart(3,'0');
+      }
+
+      function log(html, delay) {
+        return new Promise(function(resolve) {
+          setTimeout(function() {
+            var div = document.createElement('div');
+            div.className = 'demo-line';
+            div.innerHTML = '<span class="ts">[' + ts() + ']</span> ' + html;
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
+            resolve();
+          }, delay || 0);
+        });
+      }
+
+      function setStatus(k, kc, a, ac, h, hc, v, vc, lat) {
+        kernelEl.textContent = k; kernelEl.className = 'demo-status-val demo-status-' + kc;
+        aiEl.textContent = a; aiEl.className = 'demo-status-val demo-status-' + ac;
+        hwEl.textContent = h; hwEl.className = 'demo-status-val demo-status-' + hc;
+        verdictEl.textContent = v; verdictEl.className = 'demo-status-val demo-status-' + vc;
+        if (lat !== undefined) latencyEl.textContent = lat;
+      }
+
+      function clear() { terminal.innerHTML = ''; setStatus('ACTIVE','ok','IDLE','ok','CLEAR','ok','---','ok','0.0ms'); }
+
+      async function runDMA() {
+        clear(); labelEl.textContent = 'Scenario: DMA attack via PCIe';
+        await log('<span class="info">[INIT]</span> <span class="dim">Cerberus session attached — PID 7284 (game.exe)</span>', 200);
+        await log('<span class="info">[KERNEL]</span> <span class="dim">Ring-0 driver loaded — minifilter active</span>', 400);
+        await log('<span class="info">[HW]</span> <span class="dim">PCIe bus enumeration started...</span>', 600);
+        setStatus('ACTIVE','ok','IDLE','ok','SCANNING','warn','---','ok','0.8ms');
+        await log('<span class="dim">[HW] Slot 0: Intel UHD Graphics 770 — </span><span class="ok">FW VERIFIED</span>', 500);
+        await log('<span class="dim">[HW] Slot 1: Realtek RTL8125 NIC — </span><span class="ok">FW VERIFIED</span>', 300);
+        await log('<span class="dim">[HW] Slot 2: Samsung NVMe 980 PRO — </span><span class="ok">FW VERIFIED</span>', 300);
+        await log('<span class="dim">[HW] Slot 3: Unknown Device (VID:0x1234 DID:0x5678) — </span><span class="warn">UNRECOGNIZED</span>', 400);
+        setStatus('ACTIVE','ok','IDLE','ok','FLAGGED','warn','---','ok','1.1ms');
+        await log('<span class="warn">[HW] ⚠ Device at Slot 3 firmware signature not in trusted DB</span>', 500);
+        await log('<span class="warn">[HW] ⚠ Cross-referencing against known DMA boards...</span>', 600);
+        await log('<span class="err">[HW] ✖ MATCH: Firmware pattern matches Screamer-class FPGA DMA board</span>', 700);
+        await log('<span class="err">[HW] ✖ Device is performing direct memory reads — 847 anomalous accesses in 2.1s</span>', 500);
+        setStatus('ACTIVE','ok','IDLE','ok','THREAT','alert','---','ok','1.4ms');
+        await log('<span class="dim">[AI] Behavioral engine activated — correlating hardware anomaly with input stream</span>', 400);
+        setStatus('ACTIVE','ok','PROCESSING','warn','THREAT','alert','---','ok','1.6ms');
+        await log('<span class="warn">[AI] Input analysis: aim corrections correlate with external memory read timing (r=0.94)</span>', 600);
+        await log('<span class="err">[AI] ✖ Confidence: 99.7% — player input is being augmented by external data source</span>', 500);
+        setStatus('ACTIVE','ok','CONFIRMED','alert','THREAT','alert','BLOCKED','alert','1.8ms');
+        await log('<span class="err">[VERDICT] ████ THREAT BLOCKED ████ — DMA external read attack via PCIe Slot 3</span>', 400);
+        await log('<span class="dim">[VERDICT] Action: Session terminated — hardware fingerprint logged — report queued</span>', 300);
+        await log('<span class="ok">[CLEANUP] Driver unloaded — zero residual footprint — session ended cleanly</span>', 500);
+        latencyEl.textContent = '1.8ms';
+      }
+
+      async function runAimbot() {
+        clear(); labelEl.textContent = 'Scenario: Internal aimbot injection';
+        await log('<span class="info">[INIT]</span> <span class="dim">Cerberus session attached — PID 3891 (game.exe)</span>', 200);
+        await log('<span class="info">[KERNEL]</span> <span class="dim">Ring-0 driver loaded — monitoring memory permissions</span>', 400);
+        await log('<span class="info">[HW]</span> <span class="dim">PCIe bus scan — 4 devices — </span><span class="ok">ALL CLEAR</span>', 500);
+        setStatus('ACTIVE','ok','SAMPLING','ok','CLEAR','ok','---','ok','0.4ms');
+        await log('<span class="dim">[AI] Input sampling at 1000Hz — building baseline profile...</span>', 600);
+        await log('<span class="dim">[AI] Baseline established — 14,200 samples — normal human input variance</span>', 800);
+        await log('<span class="dim">[KERNEL] Memory scan cycle 47 — all regions clean</span>', 400);
+        await log('<span class="dim">[KERNEL] Memory scan cycle 48 — all regions clean</span>', 300);
+        await log('<span class="warn">[KERNEL] ⚠ Scan cycle 49 — new executable region detected at 0x7FF8A2100000</span>', 500);
+        setStatus('SCANNING','warn','SAMPLING','ok','CLEAR','ok','---','ok','0.9ms');
+        await log('<span class="warn">[KERNEL] ⚠ Region is RWX (Read-Write-Execute) — not code-signed</span>', 400);
+        await log('<span class="err">[KERNEL] ✖ Manual syscall detected — NtWriteVirtualMemory via direct ntdll stub</span>', 500);
+        setStatus('THREAT','alert','SAMPLING','ok','CLEAR','ok','---','ok','1.1ms');
+        await log('<span class="dim">[AI] Behavioral shift detected — input pattern divergence from baseline</span>', 400);
+        setStatus('THREAT','alert','ANALYZING','warn','CLEAR','ok','---','ok','1.3ms');
+        await log('<span class="warn">[AI] ⚠ Aim correction speed: 0.3ms avg (human baseline: 180-240ms)</span>', 500);
+        await log('<span class="warn">[AI] ⚠ Target acquisition: 100% headshot rate over last 23 engagements</span>', 400);
+        await log('<span class="err">[AI] ✖ Movement vectors snap to enemy positions with sub-frame precision</span>', 500);
+        await log('<span class="err">[AI] ✖ Classification: AIMBOT — confidence 99.2%</span>', 400);
+        setStatus('THREAT','alert','CONFIRMED','alert','CLEAR','ok','BLOCKED','alert','1.6ms');
+        await log('<span class="err">[VERDICT] ████ THREAT BLOCKED ████ — Internal aimbot via manual mapped injection</span>', 400);
+        await log('<span class="dim">[VERDICT] Action: Session terminated — injected module hash logged — report queued</span>', 300);
+        await log('<span class="ok">[CLEANUP] Injected region deallocated — driver unloaded — session ended cleanly</span>', 500);
+        latencyEl.textContent = '1.6ms';
+      }
+
+      async function runDriver() {
+        clear(); labelEl.textContent = 'Scenario: Mapped kernel driver';
+        await log('<span class="info">[INIT]</span> <span class="dim">Cerberus session attached — PID 5102 (game.exe)</span>', 200);
+        await log('<span class="info">[KERNEL]</span> <span class="dim">Ring-0 driver loaded — integrity monitor active</span>', 400);
+        await log('<span class="info">[HW]</span> <span class="dim">PCIe bus scan — 5 devices — </span><span class="ok">ALL CLEAR</span>', 400);
+        setStatus('ACTIVE','ok','IDLE','ok','CLEAR','ok','---','ok','0.3ms');
+        await log('<span class="dim">[KERNEL] Driver load callback — verifying ntoskrnl module list</span>', 500);
+        await log('<span class="dim">[KERNEL] 87 modules loaded — all signatures verified</span>', 400);
+        await log('<span class="dim">[KERNEL] Periodic integrity check #1 — clean</span>', 600);
+        await log('<span class="dim">[KERNEL] Periodic integrity check #2 — clean</span>', 400);
+        await log('<span class="warn">[KERNEL] ⚠ Integrity check #3 — discrepancy detected</span>', 500);
+        setStatus('SCANNING','warn','IDLE','ok','CLEAR','ok','---','ok','0.7ms');
+        await log('<span class="warn">[KERNEL] ⚠ Executable code found in non-paged pool — not in module list</span>', 500);
+        await log('<span class="warn">[KERNEL] ⚠ Code region: 0xFFFFF80712340000 — 48KB — no PE header</span>', 400);
+        await log('<span class="err">[KERNEL] ✖ Mapped driver detected — manually loaded via MmMapIoSpace exploit</span>', 600);
+        setStatus('THREAT','alert','IDLE','ok','CLEAR','ok','---','ok','1.0ms');
+        await log('<span class="err">[KERNEL] ✖ Driver is hooking NtReadVirtualMemory — intercepting game memory reads</span>', 500);
+        await log('<span class="err">[KERNEL] ✖ No digital signature — no PE header — no module entry — UNSIGNED</span>', 400);
+        setStatus('THREAT','alert','IDLE','ok','CLEAR','ok','BLOCKED','alert','1.2ms');
+        await log('<span class="err">[VERDICT] ████ THREAT BLOCKED ████ — Unsigned mapped kernel driver</span>', 400);
+        await log('<span class="dim">[VERDICT] Action: Session terminated — driver memory region dumped for analysis</span>', 300);
+        await log('<span class="ok">[CLEANUP] Hooked functions restored — mapped region freed — session ended cleanly</span>', 500);
+        latencyEl.textContent = '1.2ms';
+      }
+
+      async function runClean() {
+        clear(); labelEl.textContent = 'Scenario: Clean session (no threats)';
+        await log('<span class="info">[INIT]</span> <span class="dim">Cerberus session attached — PID 9471 (game.exe)</span>', 200);
+        await log('<span class="info">[KERNEL]</span> <span class="dim">Ring-0 driver loaded — minifilter active</span>', 400);
+        await log('<span class="info">[HW]</span> <span class="dim">PCIe bus enumeration started...</span>', 400);
+        setStatus('ACTIVE','ok','IDLE','ok','SCANNING','ok','---','ok','0.5ms');
+        await log('<span class="dim">[HW] Slot 0: NVIDIA RTX 4070 — </span><span class="ok">FW VERIFIED</span>', 300);
+        await log('<span class="dim">[HW] Slot 1: Intel I225-V NIC — </span><span class="ok">FW VERIFIED</span>', 300);
+        await log('<span class="dim">[HW] Slot 2: WD Black SN850X — </span><span class="ok">FW VERIFIED</span>', 300);
+        await log('<span class="ok">[HW] ✓ All 3 devices verified — no anomalies detected</span>', 400);
+        setStatus('ACTIVE','ok','SAMPLING','ok','CLEAR','ok','---','ok','0.6ms');
+        await log('<span class="dim">[KERNEL] Memory scan — 94 modules — all code-signed and verified</span>', 500);
+        await log('<span class="dim">[AI] Input sampling at 1000Hz — building baseline...</span>', 500);
+        await log('<span class="dim">[AI] Baseline locked — normal human variance confirmed</span>', 600);
+        await log('<span class="dim">[KERNEL] Integrity check #1 — </span><span class="ok">CLEAN</span>', 400);
+        await log('<span class="dim">[AI] Sample batch #1 (14,000 samples) — </span><span class="ok">NORMAL</span>', 500);
+        await log('<span class="dim">[KERNEL] Integrity check #2 — </span><span class="ok">CLEAN</span>', 400);
+        await log('<span class="dim">[AI] Sample batch #2 (14,200 samples) — </span><span class="ok">NORMAL</span>', 500);
+        setStatus('ACTIVE','ok','MONITORING','ok','CLEAR','ok','CLEAN','ok','0.4ms');
+        await log('<span class="ok">[VERDICT] ✓ Session clean — all three heads report nominal</span>', 400);
+        await log('<span class="dim">[SESSION] Game session continues — monitoring in background at 0.2% CPU</span>', 300);
+        await log('<span class="ok">[STATUS] Three heads active — zero threats — player is clean</span>', 400);
+        latencyEl.textContent = '0.4ms';
+      }
+
+      function bindBtn(id, fn) {
+        var btn = document.getElementById(id);
+        if (btn) btn.addEventListener('click', function() {
+          if (running) return;
+          running = true;
+          document.querySelectorAll('.demo-btn').forEach(function(b) { b.disabled = true; });
+          fn().then(function() {
+            running = false;
+            document.querySelectorAll('.demo-btn').forEach(function(b) { b.disabled = false; });
+          });
+        });
+      }
+
+      bindBtn('demoBtnDMA', runDMA);
+      bindBtn('demoBtnAimbot', runAimbot);
+      bindBtn('demoBtnDriver', runDriver);
+      bindBtn('demoBtnClean', runClean);
     })();
 
     // Nav background on scroll
