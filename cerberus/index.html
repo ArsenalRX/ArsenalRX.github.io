@@ -368,7 +368,7 @@
 
     /* ===== METRICS ===== */
     .metrics-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
     }
     .metric-card {
       background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
@@ -752,6 +752,53 @@
     </div>
   </section>
 
+  <!-- SCAN LIFECYCLE -->
+  <section class="section" id="lifecycle">
+    <div class="section-header reveal">
+      <div class="section-label">Scan Lifecycle</div>
+      <h2 class="section-title">What Cerberus checks and when</h2>
+      <p class="section-desc">Continuous protection from the moment the game launches to the moment it exits. Every phase has a purpose.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;" class="reveal">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;">
+        <div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Phase 1 — Game Launch</div>
+        <div style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--text-bright);margin-bottom:12px;">Pre-Session Scan</div>
+        <ul style="list-style:none;font-size:0.8rem;color:var(--text-dim);line-height:2;">
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> PCIe bus enumeration — all devices fingerprinted</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Firmware signatures cross-referenced against DMA board DB</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Kernel driver integrity — loaded modules verified</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Memory baseline snapshot — VAD tree walked</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Code-signing enforcement — unsigned modules blocked</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Known vulnerable driver blocklist checked</li>
+        </ul>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;">
+        <div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Phase 2 — Active Session</div>
+        <div style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--text-bright);margin-bottom:12px;">Continuous Monitoring</div>
+        <ul style="list-style:none;font-size:0.8rem;color:var(--text-dim);line-height:2;">
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> AI input sampling at 1000Hz — aim, movement, reaction</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Memory scans every 500ms — executable regions audited</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Syscall monitoring — manual NtWriteVirtualMemory intercepted</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Handle stripping — external process read/write access denied</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> DMA pattern detection — anomalous memory access flagged</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Thread creation callbacks — injection attempts caught</li>
+        </ul>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;">
+        <div style="font-family:var(--font-heading);font-size:0.7rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Phase 3 — Game Exit</div>
+        <div style="font-family:var(--font-heading);font-size:1rem;font-weight:700;color:var(--text-bright);margin-bottom:12px;">Clean Exit & Report</div>
+        <ul style="list-style:none;font-size:0.8rem;color:var(--text-dim);line-height:2;">
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Final integrity check — catch post-session tampering</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Session verdict logged — clean / flagged / blocked</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Borderline cases escalated to manual review queue</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Kernel driver unloaded — zero residual footprint</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> No background processes remain after session</li>
+          <li style="display:flex;align-items:center;gap:8px;"><span style="color:var(--accent);">&#10003;</span> Session replay available for flagged players (Cerberus+ tiers)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   <div class="divider"></div>
 
   <!-- COMPARISON -->
@@ -937,6 +984,7 @@
         <button class="demo-btn" id="demoBtnAimbot">Aimbot Inject</button>
         <button class="demo-btn" id="demoBtnDriver">Mapped Driver</button>
         <button class="demo-btn" id="demoBtnClean">Clean Session</button>
+        <button class="demo-btn" id="demoBtnReview">Manual Review</button>
         <span class="demo-scenario-label" id="demoScenarioLabel">Select a scenario</span>
       </div>
     </div>
@@ -952,6 +1000,16 @@
       <p class="section-desc">Cerberus was engineered to be invisible to performance. Every scan, every inference, every check — under budget.</p>
     </div>
     <div class="metrics-grid reveal">
+      <div class="metric-card">
+        <div class="metric-value">99.87%</div>
+        <div class="metric-label">Detection Rate</div>
+        <div class="metric-sub">Across all cheat categories</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">0.003%</div>
+        <div class="metric-label">False Positive Rate</div>
+        <div class="metric-sub">Borderline cases go to manual review</div>
+      </div>
       <div class="metric-card">
         <div class="metric-value">&lt;0.3%</div>
         <div class="metric-label">CPU Overhead</div>
@@ -1370,6 +1428,41 @@
         latencyEl.textContent = '0.4ms';
       }
 
+      async function runManualReview() {
+        clear(); labelEl.textContent = 'Scenario: Borderline behavior → Manual review escalation';
+        await log('<span class="info">[INIT]</span> <span class="dim">Cerberus session attached — PID 5219 (game.exe)</span>', 200);
+        await log('<span class="info">[KERNEL]</span> <span class="dim">Ring-0 driver loaded — minifilter active</span>', 400);
+        await log('<span class="info">[HW]</span> <span class="dim">PCIe bus scan — 4 devices — </span><span class="ok">ALL CLEAR</span>', 500);
+        setStatus('ACTIVE','ok','SAMPLING','ok','CLEAR','ok','---','ok','0.5ms');
+        await log('<span class="dim">[AI] Input sampling at 1000Hz — building baseline profile...</span>', 600);
+        await log('<span class="dim">[AI] Baseline established — 14,800 samples — normal human variance</span>', 700);
+        await log('<span class="dim">[KERNEL] Memory scan cycle 1-12 — all regions clean</span>', 500);
+        await log('<span class="dim">[AI] Sample batch #1 — </span><span class="ok">NORMAL</span> <span class="dim">(confidence: 98.2%)</span>', 500);
+        await log('<span class="dim">[AI] Sample batch #2 — </span><span class="ok">NORMAL</span> <span class="dim">(confidence: 96.4%)</span>', 500);
+        await log('<span class="dim">[AI] Sample batch #3 — deviation detected in aim correction speed</span>', 500);
+        setStatus('ACTIVE','ok','ANALYZING','warn','CLEAR','ok','---','ok','0.9ms');
+        await log('<span class="warn">[AI] ⚠ Aim correction: 12ms avg (human baseline: 180-240ms, skilled player: 40-80ms)</span>', 600);
+        await log('<span class="dim">[AI] Cross-referencing with historical player data...</span>', 500);
+        await log('<span class="warn">[AI] ⚠ Player has 847 hours — previous avg aim correction: 65ms</span>', 500);
+        await log('<span class="warn">[AI] ⚠ Sudden 5.4x improvement in aim speed — statistically anomalous</span>', 500);
+        await log('<span class="dim">[AI] Running extended behavioral analysis (30s window)...</span>', 600);
+        await log('<span class="dim">[AI] Reaction time analysis: 42ms avg — within human range for top-tier players</span>', 500);
+        await log('<span class="warn">[AI] ⚠ Headshot rate: 64% (player historical avg: 31%)</span>', 500);
+        await log('<span class="dim">[AI] Movement pattern analysis: natural strafing, organic crosshair placement</span>', 500);
+        setStatus('ACTIVE','ok','UNCERTAIN','warn','CLEAR','ok','---','ok','1.2ms');
+        await log('<span class="warn">[AI] ⚠ Confidence score: 67.3% — BELOW auto-ban threshold (95%)</span>', 600);
+        await log('<span class="warn">[AI] ⚠ Confidence score: ABOVE ignore threshold (30%)</span>', 400);
+        await log('<span class="dim">[VERDICT] Automated verdict: INCONCLUSIVE — escalating to manual review</span>', 500);
+        setStatus('ACTIVE','ok','FLAGGED','warn','CLEAR','ok','REVIEW','warn','1.4ms');
+        await log('<span class="warn">[REVIEW] ████ ESCALATED TO MANUAL REVIEW ████</span>', 400);
+        await log('<span class="dim">[REVIEW] Session replay queued — ticket #CR-2026-48291 created</span>', 300);
+        await log('<span class="dim">[REVIEW] Player session continues — enhanced monitoring enabled (2000Hz sampling)</span>', 400);
+        await log('<span class="dim">[REVIEW] Threat analyst notified — ETA: < 4 hours (Cerberus tier SLA)</span>', 400);
+        await log('<span class="ok">[STATUS] Session continues under enhanced observation — no action taken against player</span>', 500);
+        await log('<span class="dim">[STATUS] Zero false positives. If clean, case auto-closes in 24h.</span>', 400);
+        latencyEl.textContent = '1.4ms';
+      }
+
       function bindBtn(id, fn) {
         var btn = document.getElementById(id);
         if (btn) btn.addEventListener('click', function() {
@@ -1387,6 +1480,7 @@
       bindBtn('demoBtnAimbot', runAimbot);
       bindBtn('demoBtnDriver', runDriver);
       bindBtn('demoBtnClean', runClean);
+      bindBtn('demoBtnReview', runManualReview);
     })();
 
     // Nav background on scroll
